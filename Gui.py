@@ -80,4 +80,5 @@ class Sim:
         plt.show()
 
 
-s = Sim()
+if __name__ == '__main__':
+    s = Sim()
