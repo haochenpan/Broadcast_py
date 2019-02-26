@@ -5,11 +5,8 @@ import matplotlib.pyplot as plt
 from itertools import combinations
 import pickle
 
-TOTAL_NODES = 50
+TOTAL_NODES = 100
 MAX_NUMBER_OF_FAULT_NODES = 3
-
-# # Testing purpose
-# HELPER_LIST = list(range(TOTAL_NODES))
 
 
 def buildGraph(num_edges: int):
@@ -48,11 +45,11 @@ def check_valid(graph):
             commit = [False] * TOTAL_NODES
             round_dict = dict()
             fault_nodes = set(bad_nodes_instance)
-            print("Bad List: ", fault_nodes)
+            # print("Bad List: ", fault_nodes)
             restrict_src_good_neis(graph, fault_nodes)
 
             for i in range(len(graph.node)):
-                print(graph.edges(i))
+                # print(graph.edges(i))
                 count[i] = dict()
 
             if not validGraph(count, commit, num_fault, graph, round_dict, fault_nodes):
@@ -125,7 +122,7 @@ def validGraph(count: dict, commit: list, number_of_fault_nodes: int, graph, rou
                     q.append(nei)
                     commit[nei] = True
                     if not is_fault_node(nei,fault_nodes):
-                        print("ID:" + str(nei) + " has information " + str(0) + " from direct neighbor", str(rounds))
+                        # print("ID:" + str(nei) + " has information " + str(0) + " from direct neighbor", str(rounds))
                         good_node_commit.append(nei)
                         good_commit_count += 1
                     else:
@@ -151,8 +148,8 @@ def validGraph(count: dict, commit: list, number_of_fault_nodes: int, graph, rou
                             if count[nei][0] >= number_of_fault_nodes + 1:
                                 q.append(nei)
                                 commit[nei] = True
-                                print("ID:" + str(nei) + " has information " + str(0) +
-                                      " from f + 1 condition with count " + str(count[nei][0]), str(rounds))
+                                # print("ID:" + str(nei) + " has information " + str(0) +
+                                #       " from f + 1 condition with count " + str(count[nei][0]), str(rounds))
                                 good_node_commit.append(nei)
                                 good_commit_count += 1
 
@@ -167,9 +164,9 @@ def validGraph(count: dict, commit: list, number_of_fault_nodes: int, graph, rou
                         #         count[nei][current_node] += 1
 
         # round_dict[rounds] = [good_node_commit, bad_node_commit]
-        print("Good node commit in round" + str(rounds), good_node_commit)
-        print("Bad node commit in round" + str(rounds), bad_node_commit)
-        print(len(q))
+        # print("Good node commit in round" + str(rounds), good_node_commit)
+        # print("Bad node commit in round" + str(rounds), bad_node_commit)
+        # print(len(q))
         rounds += 1
 
     return instance_succeed(good_commit_count, number_of_fault_nodes)
@@ -189,7 +186,7 @@ def broadcast_entry(graph):
     combination_fault_list = list(combination_pick(nodes_id_list, number_of_fault_nodes))
     pick_index = randint(0, len(combination_fault_list) - 1)
     fault_nodes_list = combination_fault_list[pick_index]
-    print("Fault nodes are", list(fault_nodes_list))
+    # print("Fault nodes are", list(fault_nodes_list))
     return broadcast(count, commit, number_of_fault_nodes, graph, round_dict, fault_nodes_list)
 
 
@@ -237,7 +234,7 @@ def broadcast(count: dict, commit: list, number_of_fault_nodes: int, graph, roun
                     q.append(nei)
                     commit[nei] = True
                     if not is_fault_node(nei,fault_nodes):
-                        print("ID:" + str(nei) + " has information " + str(0) + " from direct neighbor", str(rounds))
+                        # print("ID:" + str(nei) + " has information " + str(0) + " from direct neighbor", str(rounds))
                         good_node_commit.append(nei)
                         good_commit_count += 1
                     else:
@@ -263,8 +260,8 @@ def broadcast(count: dict, commit: list, number_of_fault_nodes: int, graph, roun
                             if count[nei][0] >= number_of_fault_nodes + 1:
                                 q.append(nei)
                                 commit[nei] = True
-                                print("ID:" + str(nei) + " has information " + str(0) +
-                                      " from f + 1 condition with count " + str(count[nei][0]), str(rounds))
+                                # print("ID:" + str(nei) + " has information " + str(0) +
+                                #       " from f + 1 condition with count " + str(count[nei][0]), str(rounds))
                                 good_node_commit.append(nei)
                                 good_commit_count += 1
 
@@ -279,18 +276,19 @@ def broadcast(count: dict, commit: list, number_of_fault_nodes: int, graph, roun
                         #         count[nei][current_node] += 1
 
         round_dict[rounds] = [good_node_commit, bad_node_commit]
-        print("Good node commit in round" + str(rounds), good_node_commit)
-        print("Bad node commit in round" + str(rounds), bad_node_commit)
-        print(len(q))
+        # print("Good node commit in round" + str(rounds), good_node_commit)
+        # print("Bad node commit in round" + str(rounds), bad_node_commit)
+        # print(len(q))
         rounds += 1
 
     return round_dict
 
 
 def test_graph_main():
-    num_edges = TOTAL_NODES * 2
+    num_edges = TOTAL_NODES * 20
     while True:
         print("********************************************************************")
+        print(num_edges)
         graph = buildGraph(num_edges)
         if check_valid(graph):
             break
@@ -300,7 +298,7 @@ def test_graph_main():
 
 
 def broadcast_main():
-    graph = pickle.load(open("50_node_bin_1.p", "rb"))
+    graph = pickle.load(open("100_node_bin_1.p", "rb"))
     print("Graph_Edges:",graph.edges)
     round_dict = broadcast_entry(graph)
     print("Number of edges", len(list(graph.edges())))
@@ -309,7 +307,7 @@ def broadcast_main():
 
 
 def main():
-    # test_graph_main()
+    test_graph_main()
     broadcast_main()
 
 

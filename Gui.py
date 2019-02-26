@@ -78,6 +78,3 @@ class Sim:
         ani = matplotlib.animation.FuncAnimation(self.fig, self._update, frames=len(self.data.keys()),
                                                  interval=1000, repeat=True)
         plt.show()
-
-
-s = Sim()
