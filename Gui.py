@@ -42,8 +42,8 @@ class Sim:
             }
         self.graph = g
         self.data = d
-        self.pos = nx.circular_layout(self.graph)
-        self.fig, self.ax = plt.subplots(figsize=(6, 4))
+        self.pos = nx.spring_layout(self.graph)
+        self.fig, self.ax = plt.subplots(figsize=(12, 8))
         self._simulate()
 
     def _draw_nodes(self, nodelist, node_color):
