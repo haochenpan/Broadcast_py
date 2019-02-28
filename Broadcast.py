@@ -52,6 +52,7 @@ def restrict_src_good_neis(graph, fault_nodes):
 
     return True
 
+
 # Check all possible sets of the fault nodes to check overall validity
 def check_valid(graph):
     # Early termination for check_Valid if the graph is not in the single connected component
@@ -350,6 +351,8 @@ def run_five_times():
 def main():
     # test_graph_main()
     broadcast_main()
+
+
 
 
 if __name__ == '__main__':
