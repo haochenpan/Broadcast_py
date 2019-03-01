@@ -8,15 +8,15 @@ from time import time
     Configurations: specify TOTAL_NODES, MAX_FAULT_NODES, GRAPH_TYPE, and some other parameters
 """
 
-TOTAL_NODES = 30
+TOTAL_NODES = 50
 MAX_FAULT_NODES = 3
 
 VALID_GRAPH_TYPES = ['Erdos_Renyi', 'Geometric']
-GRAPH_TYPE = VALID_GRAPH_TYPES[1]
+GRAPH_TYPE = VALID_GRAPH_TYPES[1]  # <- 1 = Geometric
 
 WANT_WORST_CASE_GRAPH = True  # if we want more rounds before finishing, currently not implemented
 ERDOS_RENYI_EDGE_FACTOR = 18  # total num of edges = TOTAL_NODES * edge_factor
-GEOMETRIC_THRESHOLD = 0.5
+GEOMETRIC_THRESHOLD = 0.4
 
 
 def build_graph(graph_type: str) -> nx.Graph:
@@ -27,8 +27,8 @@ def build_graph(graph_type: str) -> nx.Graph:
     """
 
     try_counter, max_tries = 0, 1000
-    G, ncc = None, 0
-    while ncc != 1:
+    G, ncc, src_neis = None, 0, 0
+    while ncc != 1 or src_neis < MAX_FAULT_NODES + 1:
         try_counter += 1
         if try_counter > max_tries: raise Exception("inappropriate parameters")
         if graph_type == VALID_GRAPH_TYPES[0]:
@@ -39,7 +39,10 @@ def build_graph(graph_type: str) -> nx.Graph:
         else:
             raise Exception("Invalid graph type")
         ncc = nx.number_connected_components(G)
+        src_neis = len(G.edges(0))  # the number of neighbours of the source node
+
     assert ncc == 1
+    assert src_neis >= MAX_FAULT_NODES + 1
 
     if WANT_WORST_CASE_GRAPH:
         pass
@@ -160,8 +163,8 @@ if __name__ == '__main__':
     """
         or Check whether a graph is valid
     """
-    # graph_path = '/Users/haochen/Desktop/Broadcast_py/n_30_f_3_geo_th_0.5_1551466966.pi'
-    # G = load(open(graph_path, "rb"))
-    # print(check_graph(G))
+    graph_path = '/Users/haochen/Desktop/Broadcast_py/n_50_f_3_geo_th_0.4_1551468820.pi'
+    G = load(open(graph_path, "rb"))
+    TOTAL_NODES = len(G.nodes)
+    print("the graph is desired") if check_graph(G) else print("not a desired graph")
     # TODO: in addition to this ProofByBroadcasting, do a quick ProofByPartitioning
-
