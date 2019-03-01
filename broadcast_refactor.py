@@ -14,7 +14,7 @@ MAX_NUMBER_OF_FAULT_NODES = 3
 EDGE_FACTOR = 18
 
 # Used for geometricGraph
-THRESHOLD = 0.15
+THRESHOLD = 0.14
 
 
 ##############################
@@ -68,6 +68,7 @@ def restrict_src_good_neis(graph, fault_nodes):
 
 # Check all possible sets of the fault nodes to check overall validity
 def check_valid(graph):
+    print("********************************************************")
     # Early termination for check_Valid if the graph is not in the single connected component
     if nx.number_connected_components(graph) > 1:
         print("not 1 component")
@@ -300,7 +301,7 @@ def broadcast(count: dict, commit: list, number_of_fault_nodes: int, graph, roun
 
                 # If current Node is src then push this node into the Queue
                 # because all the outgoing neighbors for the src node will directly commit the value
-                elif current_node == 0 or (trusted_nodes is not None and current_node in trusted_nodes.keys()):
+                elif current_node == 0 or (trusted_nodes is not None and current_node in trusted_nodes):
                     q.append(nei)
                     commit[nei] = True
                     if not is_fault_node(nei,fault_nodes):
@@ -381,7 +382,9 @@ def test_graph_main():
 # Do the broadcast algorithm and also draw out the graph
 def broadcast_main(fault_list= None, trusted_nodes= None):
     # Input the graph data saved in pickle to generate the totality validity graph
-    graph = pickle.load(open("100_17_100_0.3_200_0.2_300_0.17.p", "rb"))
+    # 100_17_100_0.3_200_0.2_300_0.17_300_0.2.p
+
+    graph = pickle.load(open("100_17_100_0.3_200_0.2_300_0.17_300_0.2.p", "rb"))
 
     print("Graph_Edges:", graph.edges)
     round_dict = broadcast_entry(graph, fault_list, trusted_nodes)
@@ -415,89 +418,109 @@ def run_five_times():
 # Concat graph together (not arbitrary bad node)
 ##############################
 
-# Move your original node id by concat_graph_nodes_number
-def move_index(graph, num_current_graph_nodes):
-    num_sub_graph_node = len(graph.nodes)
-    mapping = dict()
-    for i in range(num_sub_graph_node):
-        mapping[i] = i + num_current_graph_nodes
-    # Relabel the node id with the corresponding id
-    nx.relabel_nodes(graph, mapping, copy = False)
-
-
 # Compose the Two graphs together but are now disconnected component
-def compose (src_graph, sub_graph):
+def compose(src_graph, sub_graph):
     return nx.compose(src_graph, sub_graph)
 
 
-# Help to prepare the concatination of different graphs together
-# fault_nodes_list: the origin id of your bad nodes in individual graph
-def concat_build_helper(num_current_graph_nodes, fault_list, concat_fault_node_list, pickle_file_name):
-    # Load the graph
-    graph = pickle.load(open(pickle_file_name, "rb"))
-    # Specify the id for bad nodes in concat graph
-    concat_fault_node_list.extend([num_current_graph_nodes + fault_list[0],
-                                   num_current_graph_nodes + fault_list[1],
-                                   num_current_graph_nodes + fault_list[2]])
-    # If not the src graph, need to move its id by num_current_graph_nodes
-    if num_current_graph_nodes != 0:
-        move_index(graph, num_current_graph_nodes)
+# Return the new concat graph
+# Two goal:
+# 1: Move index so no overlapping id
+# 2: Compose the two graphs togehter
+# 3: Add link between
 
-    return concat_fault_node_list, graph
+def concat_two_graph(prev_src_id, current_src_id, current_sub_graph_file_name, manual_link= None, prev_src_graph = None):
+    # Means no prev_graph, just return the graph loaded from file
+    if prev_src_graph is None:
+        concat_graph = pickle.load(open(current_sub_graph_file_name, "rb"))
+        return concat_graph
+    else:
+        current_sub_graph = pickle.load(open(current_sub_graph_file_name, "rb"))
+
+        # 1. Need to move the id for current_sub_graph
+        mapping = dict()
+        for i in range(len(current_sub_graph.nodes)):
+            mapping[i] = i + current_src_id
+        # Relabel the node id with the corresponding id
+        nx.relabel_nodes(current_sub_graph, mapping, copy=False)
+        # 2. Compose the graph
+        concat_graph = compose(prev_src_graph, current_sub_graph)
+        # 3. Build the link
+        for i in range(len(manual_link)):
+            concat_graph.add_edge(current_src_id, manual_link[i] + prev_src_id)
+    return concat_graph
 
 
-# Connect_id is the original sub_graph node
-# src_good_list is from the src node
-def manual_connect(src_good_list, graph, connect_id):
-    for i in range (len(src_good_list)):
-        graph.add_edge(src_good_list[i], connect_id)
+# Generate the bad nodes id, need to move their index
+def generate_bad_nodes_id(current_src_id, bad_nodes_id):
+    for i in range(len(bad_nodes_id)):
+        bad_nodes_id[i] = current_src_id + bad_nodes_id[i]
+    return bad_nodes_id
+
 
 # Main function for concatinating graphs and run the broadcast
 # Note: fault nodes are not arbitrary
 # Note: all the previous source node will act like a trusted node
-
-
 def concat_graph_main():
-    num_current_graph_nodes = 0
+    prev_src_id = 0
+    current_src_id = 0
     concat_fault_list = []
-    trusted_nodes = dict()
+
     # 1
-    concat_fault_list, src_graph = concat_build_helper(num_current_graph_nodes, [82, 70, 28],
-                                                       concat_fault_list, "100_17_node_bin_11551281716.p")
-    num_current_graph_nodes = len(src_graph.nodes)
+    src_graph = concat_two_graph(prev_src_id, current_src_id, "100_17_node_bin_11551281716.p")
+    concat_fault_list.extend(generate_bad_nodes_id(current_src_id, [82, 70, 28]))
+    prev_src_id = current_src_id
+    current_src_id = len(src_graph.nodes)
+
     # 2
-    concat_fault_list, sub_graph_1 = concat_build_helper(num_current_graph_nodes, [5, 58, 78],
-                                                         concat_fault_list, "100_0.3_node_geo.p")
-    src_graph = compose(src_graph, sub_graph_1)
-    num_current_graph_nodes = len(src_graph.nodes)
-    manual_connect([4, 31, 48, 94], src_graph, num_current_graph_nodes - 100)
-    trusted_nodes[100] = True
+    # Move index first
+    # "100_0.3_node_geo.p"
+    src_graph = concat_two_graph(prev_src_id, current_src_id, "100_0.3_node_geo.p",
+                                 [31, 94, 4, 48], src_graph)
+    concat_fault_list.extend(generate_bad_nodes_id(current_src_id, [5, 58, 78]))
+    prev_src_id = current_src_id
+    current_src_id = len(src_graph.nodes)
 
     #3
-    concat_fault_list, sub_graph_1 = concat_build_helper(num_current_graph_nodes, [122, 164, 189],
-                                                         concat_fault_list, "200_0.2_node_geo")
-    src_graph = compose(src_graph, sub_graph_1)
-    num_current_graph_nodes = len(src_graph.nodes)
-    manual_connect([140, 29, 120, 5], src_graph, num_current_graph_nodes - 200)
-    trusted_nodes[200] = True
+    # "200_0.2_node_geo"
+    src_graph = concat_two_graph(prev_src_id, current_src_id, "200_0.2_node_geo",
+                                 [4, 56, 66, 85], src_graph)
+    concat_fault_list.extend(generate_bad_nodes_id(current_src_id, [122, 164, 189]))
+    prev_src_id = current_src_id
+    current_src_id = len(src_graph.nodes)
 
-    #4
-    concat_fault_list, sub_graph_1 = concat_build_helper(num_current_graph_nodes, [99, 260, 236],
-                                                         concat_fault_list, "300_0.17_node_geo")
-    src_graph = compose(src_graph, sub_graph_1)
-    num_current_graph_nodes = len(src_graph.nodes)
-    manual_connect([20, 89, 150, 247], src_graph, num_current_graph_nodes - 300)
-    trusted_nodes[400] = True
+    # 4
+    # "300_0.17_node_geo"
+    src_graph = concat_two_graph(prev_src_id, current_src_id, "300_0.17_node_geo",
+                                 [140, 29, 2, 111], src_graph)
+    concat_fault_list.extend(generate_bad_nodes_id(current_src_id, [260, 236, 99]))
+    prev_src_id = current_src_id
+    current_src_id = len(src_graph.nodes)
+
+
+    # 5
+    # "300_0.2_node_geo"
+    src_graph = concat_two_graph(prev_src_id, current_src_id, "300_0.2_node_geo", [20, 89, 238, 247], src_graph)
+    concat_fault_list.extend(generate_bad_nodes_id(current_src_id, [10, 111, 123]))
+    prev_src_id = current_src_id
+    current_src_id = len(src_graph.nodes)
 
     # Further build maybe... but follow the previous pattern
-    # pickle.dump(src_graph, open("100_17_100_0.3_200_0.2_300_0.17.p", "wb"))
-    broadcast_main(concat_fault_list, trusted_nodes)
+    pickle.dump(src_graph, open("100_17_100_0.3_200_0.2_300_0.17_300_0.2.p", "wb"))
+    # broadcast_main(concat_fault_list, trusted_nodes)
 
 
 def main():
-    # check_current_graph_valid()
+    # 100_17_100_0.3_200_0.2_300_0.17_300_0.2
+
+    trust_nodes = {100, 200, 400, 700}
+    bad_nodes = [82, 70, 28, 105, 158, 178, 322, 364, 389, 499, 660, 636, 710, 811, 823]
+    broadcast_main(bad_nodes, trust_nodes)
+
+    # g = build_random_geo_graph()
+    # check_current_graph_valid(g)
     # test_graph_main()
-    concat_graph_main()
+    # concat_graph_main()
     # broadcast_main()
 
 
