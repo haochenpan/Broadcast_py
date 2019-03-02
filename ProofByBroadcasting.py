@@ -3,20 +3,23 @@ from itertools import combinations
 from collections import defaultdict, deque
 from pickle import dump, load
 from time import time
+from os import getpid
 
 """
     Configurations: specify TOTAL_NODES, MAX_FAULT_NODES, GRAPH_TYPE, and some other parameters
 """
 
-TOTAL_NODES = 50
-MAX_FAULT_NODES = 3
+TOTAL_NODES = 30
+MAX_FAULTY_NODES = 3
 
 VALID_GRAPH_TYPES = ['Erdos_Renyi', 'Geometric']
 GRAPH_TYPE = VALID_GRAPH_TYPES[1]  # <- 1 = Geometric
 
 WANT_WORST_CASE_GRAPH = True  # if we want more rounds before finishing, currently not implemented
 ERDOS_RENYI_EDGE_FACTOR = 18  # total num of edges = TOTAL_NODES * edge_factor
-GEOMETRIC_THRESHOLD = 0.4
+GEOMETRIC_THRESHOLD = 0.5
+
+SAVE_PATH = '/home/eaglevisionapp/broadcast/bin'  # the bin folder
 
 
 def build_graph(graph_type: str) -> nx.Graph:
@@ -28,7 +31,7 @@ def build_graph(graph_type: str) -> nx.Graph:
 
     try_counter, max_tries = 0, 1000
     G, ncc, src_neis = None, 0, 0
-    while ncc != 1 or src_neis < MAX_FAULT_NODES + 1:
+    while ncc != 1 or src_neis < MAX_FAULTY_NODES + 1:
         try_counter += 1
         if try_counter > max_tries: raise Exception("inappropriate parameters")
         if graph_type == VALID_GRAPH_TYPES[0]:
@@ -42,7 +45,7 @@ def build_graph(graph_type: str) -> nx.Graph:
         src_neis = len(G.edges(0))  # the number of neighbours of the source node
 
     assert ncc == 1
-    assert src_neis >= MAX_FAULT_NODES + 1
+    assert src_neis >= MAX_FAULTY_NODES + 1
 
     if WANT_WORST_CASE_GRAPH:
         pass
@@ -66,10 +69,10 @@ def check_graph(G: nx.Graph) -> bool:
     # TODO early termination... but the original implementation remove edges when checking a graph
 
     nodes_except_src = set(range(1, TOTAL_NODES))
-    desired_non_faulty_commits_count = TOTAL_NODES - MAX_FAULT_NODES
+    desired_non_faulty_commits_count = TOTAL_NODES - MAX_FAULTY_NODES
 
     # for each simulation instance, we select a set of faulty nodes
-    for fault_nodes in combinations(nodes_except_src, MAX_FAULT_NODES):
+    for fault_nodes in combinations(nodes_except_src, MAX_FAULTY_NODES):
         fault_nodes = set(fault_nodes)
         non_faulty_commits_count = broadcast(G, fault_nodes)
         if non_faulty_commits_count != desired_non_faulty_commits_count:
@@ -134,37 +137,46 @@ def broadcast(G: nx.Graph, faulty_nodes: set, trusted_nodes=set(), need_gui=Fals
                 # it commits iff it has heard (MAX_FAULT_NODES + 1) non-faulty proposes
                 # note: faulty nodes don't propose values
                 propose_received[nei] += 1
-                if propose_received[nei] >= MAX_FAULT_NODES + 1:
+                if propose_received[nei] >= MAX_FAULTY_NODES + 1:
                     non_faulty_commit_queue.append(nei)
                     non_faulty_has_committed.add(nei)
     return len(non_faulty_has_committed)
 
 
 def save_graph(G: nx.Graph, graph_type):
-    graph_name = f'n_{TOTAL_NODES}_f_{MAX_FAULT_NODES}_'
+    graph_name = f'{SAVE_PATH}/n_{TOTAL_NODES}_f_{MAX_FAULTY_NODES}_'
     if graph_type == VALID_GRAPH_TYPES[0]:
         graph_name += f'erd_ef_{ERDOS_RENYI_EDGE_FACTOR}_{int(time())}.pi'
     elif graph_type == VALID_GRAPH_TYPES[1]:
         graph_name += f'geo_th_{GEOMETRIC_THRESHOLD}_{int(time())}.pi'
 
-    dump(G, open(graph_name, "wb"))
+    try:
+        dump(G, open(graph_name, 'wb'))
+    except FileNotFoundError:
+        print("not saved")
+        pass
 
 
 if __name__ == '__main__':
     pass
-    """
-        Generate a desired graph
-    """
-    # G = build_graph(GRAPH_TYPE)
-    # while not check_graph(G):
+    # print('***Generate a desired graph***')
+    # print(f"process id:{getpid()}")
+    # print(f"process configs:")
+    # print(f"graph type: {GRAPH_TYPE}, total nodes: {TOTAL_NODES}, max faulty nodes: {MAX_FAULTY_NODES}")
+    # print(f"ERDOS_RENYI_EDGE_FACTOR: {ERDOS_RENYI_EDGE_FACTOR}, GEOMETRIC_THRESHOLD: {GEOMETRIC_THRESHOLD}")
+    #
+    # for i in range(3):
     #     G = build_graph(GRAPH_TYPE)
-    # save_graph(G, GRAPH_TYPE)
-
-    """
-        or Check whether a graph is valid
-    """
-    graph_path = '/Users/haochen/Desktop/Broadcast_py/n_50_f_3_geo_th_0.4_1551468820.pi'
+    #     while not check_graph(G):
+    #         G = build_graph(GRAPH_TYPE)
+    #     save_graph(G, GRAPH_TYPE)
+    #     print("a desired graph is generated")
+    #
+    # print("***Check whether a graph is valid***")
+    graph_path = '/Users/haochen/Desktop/Broadcast_py/bin_100/n_100_f_3_geo_th_0.3_1551498220.pi'
     G = load(open(graph_path, "rb"))
-    TOTAL_NODES = len(G.nodes)
-    print("the graph is desired") if check_graph(G) else print("not a desired graph")
+    # TOTAL_NODES = len(G.nodes)
+    # print("the graph is desired") if check_graph(G) else print("not a desired graph")
+    print(broadcast(G, {11, 9, 3}))
     # TODO: in addition to this ProofByBroadcasting, do a quick ProofByPartitioning
+    # TODO: check directory

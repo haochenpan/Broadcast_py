@@ -71,22 +71,36 @@ def is_ffs(S, LR, F):
     return True
 
 
-def partition_gen(S):
+def partition_gen(S, F_set=None):
     nodes_except_source = set(range(1, NUM_OF_NODES))
     # 0 <= num_in_F <= |nodes_except_source| - 1 since the source is not in F, and R is not empty
-    for num_in_F in range(len(nodes_except_source)):
-        print(f"current num_in_F={num_in_F}")
-        for F_partition in combinations(nodes_except_source, num_in_F):
-            F_partition = set(F_partition)
-            L_R_partition = nodes_except_source - F_partition
-            if not is_ffs(S, L_R_partition, F_partition): continue
+    if F_set is None:
+        for num_in_F in range(len(nodes_except_source)):
+            print(f"current num_in_F={num_in_F}")
+            for F_partition in combinations(nodes_except_source, num_in_F):
+                F_partition = set(F_partition)
+                L_R_partition = nodes_except_source - F_partition
+                if not is_ffs(S, L_R_partition, F_partition): continue
 
-            # 0 <= num_in_L_except_source <= len(L_R_partition) - 1 to ensure R is not empty
-            for num_in_L_except_source in range(len(L_R_partition)):
-                for L_partition in combinations(L_R_partition, num_in_L_except_source):
-                    L_partition = set(L_partition)
-                    R_partition = L_R_partition - L_partition
-                    yield L_partition, R_partition
+                # 0 <= num_in_L_except_source <= len(L_R_partition) - 1 to ensure R is not empty
+                for num_in_L_except_source in range(len(L_R_partition)):
+                    for L_partition in combinations(L_R_partition, num_in_L_except_source):
+                        L_partition = set(L_partition)
+                        R_partition = L_R_partition - L_partition
+                        yield L_partition, R_partition
+    else:
+        F_partition = F_set
+        L_R_partition = nodes_except_source - F_partition
+        if not is_ffs(S, L_R_partition, F_partition):
+            print("not ffs, no need to validate")
+            return
+
+        # 0 <= num_in_L_except_source <= len(L_R_partition) - 1 to ensure R is not empty
+        for num_in_L_except_source in range(len(L_R_partition)):
+            for L_partition in combinations(L_R_partition, num_in_L_except_source):
+                L_partition = set(L_partition)
+                R_partition = L_R_partition - L_partition
+                yield L_partition, R_partition
 
 
 def is_partition_desired(S, L, R):
@@ -110,13 +124,13 @@ def get_desired_graph():
     return result
 
 
-def check_desired_graph(G):
+def check_desired_graph(G, F_set=None):
     global NUM_OF_NODES
     NUM_OF_NODES = len(G.nodes)
     S = get_neighbours(G)
     print("graph loaded")
     print(f"num of nodes: {NUM_OF_NODES}")
-    for L, R in partition_gen(S):
+    for L, R in partition_gen(S, F_set=F_set):  # <- "speedly" generates a counter example
         if not is_partition_desired(S, L, R):
             print(L, R)
             print("graph not desired")
@@ -126,5 +140,7 @@ def check_desired_graph(G):
 
 if __name__ == '__main__':
     # check_desired_graph(G)
-    get_desired_graph()
+    file_path = '/Users/haochen/Desktop/Broadcast_py/bin_100/n_100_f_3_geo_th_0.3_1551498220.pi'
+    graph = pickle.load(open(file_path, 'rb'))
+    check_desired_graph(graph)
     # print(get_desired_graph())
