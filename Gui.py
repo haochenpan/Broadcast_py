@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation
 
 # color configs
-SOURCE_COLOR = 'green'  # for the assumed non-faulty source node
+SOURCE_COLOR = 'green'  # for the assumed non-faulty source node  # TODO: trusted nodes
 NON_FAULTY_BEFORE = 'white'  # for non-faulty nodes before committing
 NON_FAULTY_AFTER = 'yellow'  # for non-faulty nodes after committing
 FAULTY_BEFORE = 'pink'  # for faulty nodes before receiving a value from the source
@@ -18,7 +18,6 @@ class Sim:
         if g is None:
             # the below trivial example demonstrates when f = 2,
             # i.e when a non-faulty node see 3 messages with the same value, the node then commits the value
-            print("None!!!!!!!!!!!")
             g = nx.DiGraph()
             g.add_nodes_from(range(8))
             g.add_edges_from([(0, 1), (0, 2), (0, 3), (0, 4), (0, 5)])
