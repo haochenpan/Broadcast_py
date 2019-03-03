@@ -10,7 +10,7 @@ import os
     Configurations: specify TOTAL_NODES, MAX_FAULT_NODES, GRAPH_TYPE, and some other parameters
 """
 
-TOTAL_NODES = 100
+TOTAL_NODES = 300
 MAX_FAULTY_NODES = 3
 
 VALID_GRAPH_TYPES = ['Erdos_Renyi', 'Geometric']
@@ -18,9 +18,9 @@ GRAPH_TYPE = VALID_GRAPH_TYPES[1]  # <- 1 = Geometric
 
 # WANT_WORST_CASE_GRAPH = True  # if we want more rounds before finishing, currently not implemented
 ERDOS_RENYI_EDGE_FACTOR = 18  # total num of edges = TOTAL_NODES * edge_factor
-GEOMETRIC_THRESHOLD = 0.3
+GEOMETRIC_THRESHOLD = 0.15
 SAVE_PATH = os.path.join(os.getcwd(), 'bin')  # the bin folder in the current directory
-NUM_OF_GRAPH_TO_GENERATE = 1  # the number of graphs needs to generates before the program exits
+NUM_OF_GRAPH_TO_GENERATE = 5  # the number of graphs needs to generates before the program exits
 
 
 def propose_graph(graph_type: str):
@@ -203,11 +203,12 @@ def broadcast_for_gui(graph, faulty_nodes: set, trusted_nodes=set()):
 def save_graph(G, graph_type):
     if not os.path.isdir(SAVE_PATH):
         os.mkdir(SAVE_PATH)
-    graph_name = f'n_{TOTAL_NODES}_f_{MAX_FAULTY_NODES}_'
     if graph_type == VALID_GRAPH_TYPES[0]:
-        graph_name += f'erd_ef_{ERDOS_RENYI_EDGE_FACTOR}_{int(time())}.pi'
+        graph_name = f'erd_{TOTAL_NODES}_{ERDOS_RENYI_EDGE_FACTOR}_{int(time())}.pi'
     elif graph_type == VALID_GRAPH_TYPES[1]:
-        graph_name += f'geo_th_{GEOMETRIC_THRESHOLD}_{int(time())}.pi'
+        graph_name = f'geo_{TOTAL_NODES}_{GEOMETRIC_THRESHOLD}_{int(time())}.pi'
+    else:
+        graph_name = f"unk_{TOTAL_NODES}_{int(time())}"
     file_path = os.path.join(SAVE_PATH, graph_name)
     dump(G, open(file_path, 'wb'))
 
@@ -243,15 +244,14 @@ def check_desired_graph_main(G):
 
 if __name__ == '__main__':
     pass
+    generate_graph_main()
     # g = propose_graph(GRAPH_TYPE)
     # print(len(g.nodes))
-    graph_path = '/Users/haochen/Desktop/Broadcast_py/uni_data_1500_graph.p'
-    G = load(open(graph_path, "rb"))
-    trust_nodes = {0, 300, 600, 900, 1200}
-    bad_nodes = [82, 70, 28, 305, 458, 578, 622, 764, 889, 1020, 1060, 1136, 1210, 1311, 1423]
-    bad_nodes = set(bad_nodes)
-    commits_count, run_dict = broadcast_for_gui(G, bad_nodes, trust_nodes)
-    Sim(g=G, d=run_dict)
+    # graph_path = '/Users/haochen/Desktop/Broadcast_py/uni_data_1500_graph.p'
+    # G = load(open(graph_path, "rb"))
+    # trust_nodes = {0, 300, 600, 900, 1200}
+    # bad_nodes = [82, 70, 28, 305, 458, 578, 622, 764, 889, 1020, 1060, 1136, 1210, 1311, 1423]
+    # bad_nodes = set(bad_nodes)
+    # commits_count, run_dict = broadcast_for_gui(G, bad_nodes, trust_nodes)
+    # Sim(g=G, d=run_dict)
     # check_desired_graph_main(G)
-    # # TODO: merge concat graph...
-    # # TODO: graph naming

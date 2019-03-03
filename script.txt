@@ -1,0 +1,57 @@
+sudo apt-get update -y
+sudo apt-get install make gcc zlib1g-dev libffi-dev openssl-devel
+sudo apt-get install build-essential checkinstall 
+
+
+
+Fire Up a EC2:
+
+Install Python:
+
+sudo yum update -y
+sudo apt-get install gcc zlib-devel openssl-devel libffi-devel lrzsz -y
+
+wget -q https://www.python.org/ftp/python/3.7.2/Python-3.7.2.tar.xz
+tar -xJf Python-3.7.2.tar.xz
+cd Python-3.7.2
+./configure
+
+sudo su
+make && make install
+
+RESTART THE TERMINAL
+
+sudo su
+cd /usr/local/bin
+./pip3 install virtualenv
+exit
+
+sudo rm Python-3.7.2 Python-3.7.2.tar.xz -rf
+mkdir broadcast
+cd broadcast
+virtualenv venv
+cp venv/bin/activate ~/broadcast
+source venv/bin/activate
+rz
+pip3 install -r 1.txt
+rm 1.txt -f
+
+Install MongoDB
+https://docs.mongodb.com/manual/tutorial/install-mongodb-on-amazon/
+
+Before SSH:
+go to the folder with .pem file
+chmod 400 Broadcast.pem <- run once
+
+SSH to the Server:
+(at the folder with .pem file)
+ssh -i "Broadcast.pem" ec2-user@ec2-34-226-146-237.compute-1.amazonaws.com
+ssh -i "Broadcast.pem" ec2-user@ec2-54-221-72-132.compute-1.amazonaws.com
+
+copy a file on location x to the server on location y
+scp -r -i /path/to/Broadcast.pem /path/to/x ec2-user@ec2-34-226-146-237.compute-1.amazonaws.com:/path/to/y
+e.g (at the folder with .pem file)
+scp -r -i Broadcast.pem 1.txt ec2-user@ec2-34-226-146-237.compute-1.amazonaws.com:~/broadcast
+
+cd broadcast
+source activate
