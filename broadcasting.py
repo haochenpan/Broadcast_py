@@ -1,5 +1,5 @@
 from collections import defaultdict, deque
-from Gui import Sim
+from gui import Sim
 from itertools import combinations
 from pickle import dump, load
 from time import time
@@ -10,15 +10,15 @@ import os
     Configurations: specify TOTAL_NODES, MAX_FAULT_NODES, GRAPH_TYPE, and some other parameters
 """
 
-TOTAL_NODES = 60
+TOTAL_NODES = 100
 MAX_FAULTY_NODES = 3
 
 VALID_GRAPH_TYPES = ['Erdos_Renyi', 'Geometric']
 GRAPH_TYPE = VALID_GRAPH_TYPES[1]  # <- 1 = Geometric
 
-WANT_WORST_CASE_GRAPH = True  # if we want more rounds before finishing, currently not implemented
+# WANT_WORST_CASE_GRAPH = True  # if we want more rounds before finishing, currently not implemented
 ERDOS_RENYI_EDGE_FACTOR = 18  # total num of edges = TOTAL_NODES * edge_factor
-GEOMETRIC_THRESHOLD = 0.5
+GEOMETRIC_THRESHOLD = 0.3
 SAVE_PATH = os.path.join(os.getcwd(), 'bin')  # the bin folder in the current directory
 NUM_OF_GRAPH_TO_GENERATE = 1  # the number of graphs needs to generates before the program exits
 
@@ -30,10 +30,10 @@ def propose_graph(graph_type: str):
     :return: a potentially desired graph, i.e. CPA is correct in this graph under the f-local fault model.
     """
     # num of tries in generating a graph, to avoid inappropriate parameters
-    try_counter, max_tries = 0, 1000
+    try_counter, max_tries = 0, 10000
     graph, ncc, src_neis = None, 0, 0  # graph, number of connected components, and number of the source's neighbors
 
-    while ncc != 1 or src_neis < MAX_FAULTY_NODES + 1:
+    while ncc != 1 or src_neis != MAX_FAULTY_NODES * 2 + 1:
         try_counter += 1
         if try_counter > max_tries: raise Exception("inappropriate parameters")
         if graph_type == VALID_GRAPH_TYPES[0]:
@@ -45,12 +45,9 @@ def propose_graph(graph_type: str):
             raise Exception("Invalid graph type")
         ncc = nx.number_connected_components(graph)
         src_neis = len(graph.edges(0))  # the number of neighbours of the source node
-        if WANT_WORST_CASE_GRAPH:
-            pass
-            # TODO: in the original impl, we made sure there are exactly 2f + 1 good nodes around the source
 
     assert ncc == 1
-    assert src_neis >= MAX_FAULTY_NODES + 1
+    assert src_neis == MAX_FAULTY_NODES * 2 + 1
     return graph
 
 
@@ -76,7 +73,7 @@ def check_graph(G) -> bool:
     # for each simulation instance, we select a set of faulty nodes
     for fault_nodes in combinations(nodes_except_src, MAX_FAULTY_NODES):
         fault_nodes = set(fault_nodes)
-        non_faulty_commits_count = broadcast(G, fault_nodes)
+        non_faulty_commits_count, total_rounds = broadcast(G, fault_nodes)
         if non_faulty_commits_count != desired_non_faulty_commits_count:
             return False
     return True
@@ -93,7 +90,7 @@ def broadcast(graph, faulty_nodes: set, trusted_nodes=set()):
     """
 
     # Round 0: initialize and the source commits
-
+    curr_round = 0
     # every non-faulty node (except the src) appears in non_faulty_commit_queue only once,
     # but all faulty nodes will not be in this queue
     non_faulty_commit_queue = deque()
@@ -110,7 +107,7 @@ def broadcast(graph, faulty_nodes: set, trusted_nodes=set()):
 
     # Round >= 1: all non-faulty nodes commits
     while len(non_faulty_commit_queue):  # while not all nodes have committed
-
+        curr_round += 1
         for curr_node in range(len(non_faulty_commit_queue)):  # for all nodes in the current round of commits
             curr_node = non_faulty_commit_queue.popleft()
             curr_node_neis = [edge[1] for edge in graph.edges(curr_node)]  # all outgoing neighbours of the current node
@@ -136,7 +133,7 @@ def broadcast(graph, faulty_nodes: set, trusted_nodes=set()):
                     if propose_received[nei] >= MAX_FAULTY_NODES + 1:
                         non_faulty_commit_queue.append(nei)
                         non_faulty_has_committed.add(nei)
-    return len(non_faulty_has_committed)
+    return len(non_faulty_has_committed), curr_round
 
 
 def broadcast_for_gui(graph, faulty_nodes: set, trusted_nodes=set()):
@@ -238,15 +235,23 @@ def check_desired_graph_main(G):
     print("the graph is desired") if check_graph(G) else print("not a desired graph")
 
 
-def show_gui_main(G):
-    # TODO: support trusted nodes
-    commits, run_dict = broadcast_for_gui(G, {11, 9, 3})
-    Sim(g=G, d=run_dict)
+# def show_gui_main(G):
+#     TODO: support trusted nodes
+# commits, run_dict = broadcast_for_gui(G, {11, 9, 3})
+# Sim(g=G, d=run_dict)
 
 
 if __name__ == '__main__':
     pass
-    graph_path = '/Users/haochen/Desktop/Broadcast_py/bin_100/n_100_f_3_geo_th_0.3_1551498637.pi'
+    # g = propose_graph(GRAPH_TYPE)
+    # print(len(g.nodes))
+    graph_path = '/Users/haochen/Desktop/Broadcast_py/uni_data_1500_graph.p'
     G = load(open(graph_path, "rb"))
+    trust_nodes = {0, 300, 600, 900, 1200}
+    bad_nodes = [82, 70, 28, 305, 458, 578, 622, 764, 889, 1020, 1060, 1136, 1210, 1311, 1423]
+    bad_nodes = set(bad_nodes)
+    commits_count, run_dict = broadcast_for_gui(G, bad_nodes, trust_nodes)
+    Sim(g=G, d=run_dict)
     # check_desired_graph_main(G)
     # # TODO: merge concat graph...
+    # # TODO: graph naming
