@@ -129,7 +129,8 @@ def concat_graph_main(added_nodes_list):
         current_total_nodes = len(total_graph.nodes)
 
         # Added bad nodes in local graph
-        local_bad_nodes = generate_bad_nodes_id(current_src_id, current_total_nodes)
+        local_bad_nodes = []
+        # local_bad_nodes = generate_bad_nodes_id(current_src_id, current_total_nodes)
         concat_fault_list.extend(local_bad_nodes)
 
         # We do this because we want the different nodes parameter testing against the same graph
@@ -168,7 +169,7 @@ def concat_graph_main(added_nodes_list):
 
 
 # Note that rounds = number of graph generated
-def uni_batch_running(rounds=500):
+def uni_batch_running(rounds=5000):
     # 12, 24, 48, 96, 188
     uni_round_dict = dict()
     good_nodes_test_union = [0, 5, 10, 20, 40, 80, 160, 320, 640, 1280]
@@ -187,10 +188,10 @@ def uni_batch_running(rounds=500):
 
         pickle.dump(graph, open("uni_data_1500_graph.p", "wb"))
 
-    pickle.dump(uni_round_dict, open("uni_data_node_1500_500_times", "wb"))
+    pickle.dump(uni_round_dict, open("uni_data_node_1500_5000_base_times", "wb"))
 
 
-def ratio_batch_running(rounds=500):
+def ratio_batch_running(rounds=5000):
     global STRATEGY
     STRATEGY = 1
     ratio_round_dict = dict()
@@ -205,9 +206,11 @@ def ratio_batch_running(rounds=500):
             good_nodes = concat_good_dict[para]
             total_commit, total_round = broadcast(graph, fault_nodes, good_nodes)
             ratio_round_dict[para].append(total_round)
-    pickle.dump(ratio_round_dict, open("ratio_data_node_1500_500_times", "wb"))
+    pickle.dump(ratio_round_dict, open("ratio_data_node_1500_5000_base_times", "wb"))
+
 
 def main():
+    uni_batch_running()
     ratio_batch_running()
     # dic = pickle.load(open("uni_data5000_1000_times", "rb"))
     # for k, v in dic.items():
