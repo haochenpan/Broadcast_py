@@ -244,7 +244,10 @@ def check_desired_graph_main(G):
 
 if __name__ == '__main__':
     pass
-    generate_graph_main()
+    graph = load(open("/Users/yingjianwu/Desktop/200_0.3_erdos.p","rb"))
+    _, run_dict = broadcast_for_gui(graph, [12,150,99], set([0]))
+    Sim(g=graph, d=run_dict)
+    # generate_graph_main()
     # g = propose_graph(GRAPH_TYPE)
     # print(len(g.nodes))
     # graph_path = '/Users/haochen/Desktop/Broadcast_py/uni_data_1500_graph.p'
