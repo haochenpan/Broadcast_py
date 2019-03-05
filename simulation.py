@@ -33,7 +33,7 @@ STRATEGY = 0
 RATIO_LIST = [3, 1, 1, 2, 2]
 TOTAL_RATIO = 9
 
-DIRECTORY = "/Users/yingjianwu/Desktop/broadcast/Broadcast_py/subgraphs/"
+DIRECTORY = "/Users/haochen/Desktop/Broadcast_py/subgraphs/"
 
 
 #################################################
@@ -103,20 +103,19 @@ def load_file_to_graph(file_list):
 
     total_graph = None
 
-    for i in range(len(file_list)):
+    for i, file in enumerate(file_list):
         # Now we are going to concat graph from a file
-        current_file_name = List_OF_FILE_NAME[i]
 
         # record the src id
         sub_graph_src_id.append(current_src_id)
 
         # Now start building the graph
         if i == 0:
-            total_graph, append_sub_graph = concat_two_graph(current_src_id, current_file_name)
+            total_graph, append_sub_graph = concat_two_graph(current_src_id, file)
 
         # Other general Cases
         else:
-            total_graph, append_sub_graph = concat_two_graph(current_src_id, current_file_name, links, total_graph)
+            total_graph, append_sub_graph = concat_two_graph(current_src_id, file, links, total_graph)
 
         # Append the subgraph to our list
         sub_graph_list.append(append_sub_graph)
@@ -125,7 +124,7 @@ def load_file_to_graph(file_list):
 
         current_src_id = len(total_graph.nodes)
 
-    return total_graph, sub_graph_list, sub_graph_src_id
+    return total_graph, sub_graph_list, set(sub_graph_src_id)
 
 
 def pick_trusted_centrality_edge(graph, num_of_trusted):
