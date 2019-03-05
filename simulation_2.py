@@ -59,7 +59,7 @@ def pick_trusted_nodes(G, graph_list, t_node_set, algorithm, t_node_num_list):
 
     elif algorithm is Algorithm.WEIGHTED_EDGES_PROB:
         # the probability of {a node is chosen} = ((# of edges / 2) / total # of edges)
-        probabilities = list(map(lambda n: float((len(G.edges(n)) / 2) / G.number_of_edges()), G.nodes))
+        probabilities = list(map(lambda n: (len(G.edges(n)) / 2) / G.number_of_edges(), G.nodes))
 
         for t_nodes_num in t_node_num_list:
             trusted_nodes = probability_choose(t_nodes_num, probabilities)
@@ -67,21 +67,18 @@ def pick_trusted_nodes(G, graph_list, t_node_set, algorithm, t_node_num_list):
 
     elif algorithm is Algorithm.WEIGHTED_EDGES_RANK:
         edges_num_list = [len(G.edges(n)) for n in G.nodes]  # each entry is the num of edges of a node
-        # each entry is the rank of the node,
-        # e.g. indices_rank[i] = n means (n-1) nodes have less num of edges than node i
-        indices_rank = np.argsort(edges_num_list)
-        # store {key:rank, value:node index} to a dictionary for faster lookup
-        rank_dict = dict()
-        for node_index, node_rank, in enumerate(indices_rank):
-            rank_dict[node_rank] = node_index
+
+        # each entry = (num of edges of node i, the index of node i),
+        edges_num_rank = sorted((e, i) for i, e in enumerate(edges_num_list))
 
         for t_nodes_num in t_node_num_list:
             if t_nodes_num > len(G.nodes) - len(t_node_set): raise Exception("Too many trusted nodes")
             new_trusted_nodes = t_node_set.copy()
-            t_node_rank = len(G.nodes) - 1  # the highest rank, i.e. we want to find the node with max num of edges
+            # the highest rank, i.e. we want to find the node with max num of edges
+            t_node_rank = len(edges_num_rank) - 1
 
             while len(new_trusted_nodes) < len(t_node_set) + t_nodes_num:
-                new_t_node = rank_dict[t_node_rank]
+                new_t_node = edges_num_rank[t_node_rank][1]
                 new_trusted_nodes.add(new_t_node)
                 t_node_rank -= 1
             params_dict[t_nodes_num].update(new_trusted_nodes)
@@ -102,11 +99,12 @@ def simulation_batch():
     g_path_3 = 'test_400_0.14_node_geo'
     G, g_list, t_set = load_file_to_graph([g_path_1, g_path_2, g_path_3])
     # TODO: params_dict should be created many times only for probabilistic algorithm
-    params_dict_1 = pick_trusted_nodes(G, g_list, t_set, Algorithm.UNIFORM_CHOOSE_GLOBAL, [6, 12, 18, 90])
+    params_dict_1 = pick_trusted_nodes(G, g_list, t_set, Algorithm.WEIGHTED_EDGES_RANK, [6, 12, 18])
     result_dict = defaultdict(lambda: [])
     simulation(G, params_dict_1, result_dict)
     for k, v in result_dict.items():
         print(k, v)
+    return result_dict
 
 
 if __name__ == '__main__':
