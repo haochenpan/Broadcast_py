@@ -257,6 +257,7 @@ def simulation_batch():
 
 
 if __name__ == '__main__':
+    pass
     # result_dict = simulation_batch()
     # with open("result_dict_456.pickle", "wb") as output_file:
     #     dump(result_dict, output_file)
