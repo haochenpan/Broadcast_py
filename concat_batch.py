@@ -2,9 +2,7 @@ import networkx as nx
 from collections import deque
 from random import *
 import matplotlib.pyplot as plt
-from itertools import combinations
 import pickle
-from time import time
 from broadcasting import broadcast, broadcast_for_gui
 
 ###################################################
