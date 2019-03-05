@@ -4,41 +4,22 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation
+from pickle import load
+from broadcasting import broadcast_for_gui
 
 # color configs
-SOURCE_COLOR = 'green'  # for the assumed non-faulty source node  # TODO: trusted nodes
-NON_FAULTY_BEFORE = 'white'  # for non-faulty nodes before committing
-NON_FAULTY_AFTER = 'yellow'  # for non-faulty nodes after committing
+TRUSTED_BEFORE = 'lightgreen'  # for trusted nodes, e.g. the source node, before committing
+TRUSTED_AFTER = 'green'  # for trusted nodes, e.g. the source node, after committing
+NON_FAULTY_BEFORE = 'white'  # for non-faulty nodes (but not trusted) before committing
+NON_FAULTY_AFTER = 'yellow'  # for non-faulty nodes (but not trusted) after committing
 FAULTY_BEFORE = 'pink'  # for faulty nodes before receiving a value from the source
 FAULTY_AFTER = 'red'  # for faulty nodes after receiving a value from the source
 
 
 class Sim:
     def __init__(self, g=None, d=None):
-        if g is None:
-            # the below trivial example demonstrates when f = 2,
-            # i.e when a non-faulty node see 3 messages with the same value, the node then commits the value
-            g = nx.DiGraph()
-            g.add_nodes_from(range(8))
-            g.add_edges_from([(0, 1), (0, 2), (0, 3), (0, 4), (0, 5)])
-            g.add_edges_from([(1, 6), (1, 7)])
-            g.add_edges_from([(2, 6), (4, 6), (7, 6)])
-            g.add_edges_from([(2, 7), (3, 7), (5, 7)])
-            # for n, nbrs in G.adj.items():
-            #     for nbr, eattr in nbrs.items():
-            #         print(n, nbr, eattr)
-
-            # data structure:
-            # a dictionary with integer keys representing round numbers;
-            # values are lists of length 2. For each list (value of the dict),
-            # the first entry is a list of non-faulty nodes (integers) that commit the message at this round
-            # the second entry is a list of faulty nodes that commit the message at this round
-            d = {
-                0: [[0], []],
-                1: [[1, 2, 3], [4, 5]],
-                2: [[7], []],
-                3: [[6], []]
-            }
+        assert g is not None
+        assert d is not None
         self.graph = g
         self.data = d
         self.pos = nx.spring_layout(self.graph)
@@ -57,17 +38,17 @@ class Sim:
             nx.draw_networkx_labels(self.graph, self.pos)
             for rd, nds in self.data.items():
                 if rd == 0:
-                    # for the source node
-                    self._draw_nodes(nds[0], SOURCE_COLOR)
+                    self._draw_nodes(nds[2], TRUSTED_AFTER)  # b/c the source has committed the value
                 else:
-                    # for all non-faulty node
                     self._draw_nodes(nds[0], NON_FAULTY_BEFORE)
                     self._draw_nodes(nds[1], FAULTY_BEFORE)
+                    self._draw_nodes(nds[2], TRUSTED_BEFORE)  # b/c the source has committed the value
         # for all other rounds
         else:
             nds = self.data[curr_round]
             self._draw_nodes(nds[0], NON_FAULTY_AFTER)
             self._draw_nodes(nds[1], FAULTY_AFTER)
+            self._draw_nodes(nds[2], TRUSTED_AFTER)
 
         self.ax.set_title(f"Round {curr_round}", fontweight="bold")
         self.ax.set_xticks([])
@@ -77,3 +58,12 @@ class Sim:
         ani = matplotlib.animation.FuncAnimation(self.fig, self._update, frames=len(self.data.keys()),
                                                  interval=1000, repeat=True)
         plt.show()
+
+
+if __name__ == '__main__':
+    graph_path = '/Users/haochen/Desktop/Broadcast_py/subgraphs/geo_200/geo_200_0.2_1551507763.pi'
+    G = load(open(graph_path, "rb"))
+    trust_nodes = {0, 20, 40, 60, 80}
+    faulty_nodes = {15, 35, 90, 120}
+    commits_count, run_dict = broadcast_for_gui(G, faulty_nodes, trust_nodes)
+    Sim(g=G, d=run_dict)

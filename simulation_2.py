@@ -1,6 +1,5 @@
 from enum import Enum
 from pickle import load, dump
-import os
 import networkx as nx
 from broadcasting import broadcast
 import numpy as np
@@ -15,13 +14,12 @@ from itertools import combinations
 class Algorithm(Enum):
     DEGREE_CENTRALITY = 0
     EIGEN_CENTRALITY = 1
-    CLOSSENESS_CENTRALITY = 2
-    BETWEENNES_CENTRALITY = 3
+    CLOSENESS_CENTRALITY = 2
+    BETWEENNESS_CENTRALITY = 3
 
     UNIFORM_CHOOSE_PROB_1 = 4  # P(a node to be chosen) = 1 / # of total nodes in G
     UNIFORM_CHOOSE_PROB_2 = 5  # P(a node to be chosen) = (1 / len(g_list)) * (1 / # of total nodes in g)
     WEIGHTED_EDGES_PROB = 6  # P(a node to be chosen) = (# of its edges / 2) / # of total edges in G
-    WEIGHTED_EDGES_RANK = 7  # trusted nodes are choose from nodes with max num of edges to min num of edges
 
 
 rootdir = os.path.join(os.getcwd(), 'subgraphs')
@@ -35,11 +33,14 @@ def batch_load_file_to_graph(num_of_G, num_of_g_per_G,
     :param num_of_G: the number of "concated" graphs need to be generated, if = 0, then generates all combinations
     :param num_of_g_per_G: the number of "subgraphs" in a "concated" graph
     :param g_type: the type of the subgraph, e.g. "geo"
-    :param num_of_nodes_per_g:
-    :param graph_param:
-    :param arrangement:
-    :return:
+    :param num_of_nodes_per_g: e.g. [200, 300]
+    :param graph_param: 'all' or e.g. [0.15, 0.2]
+    :param arrangement: 'sorted' or 'random'
+    :return: a generator that delivers a (G, [g, ...], {t, ...}) tuple
+             up until all combination is given / num_of_G has reached
     """
+
+    # find all paths of graphs satisfy filters above
     graph_paths = []
     for root, subdirs, files in os.walk(rootdir):
         files = filter(lambda x: x.split('_')[0] in g_type, files)  # filter graph of that type
@@ -49,32 +50,26 @@ def batch_load_file_to_graph(num_of_G, num_of_g_per_G,
         files = map(lambda x: os.path.join(root, x), files)  # add full path to the file name
         graph_paths.extend(files)
 
+    # check a possible exception
     if len(graph_paths) < num_of_g_per_G:
         raise Exception(f"subgraphs are not enough, found {len(graph_paths)} but needs at least {num_of_g_per_G}")
 
+    # sort them or shuffle them
     if arrangement == 'sorted':
         graph_paths = sorted(graph_paths)
     elif arrangement == 'random':
         shuffle(graph_paths)
 
-    if num_of_G == 0:
+    # the generator function
+    if num_of_G == 0:  # if we want all combinations
         for paths in combinations(graph_paths, num_of_g_per_G):
             yield load_file_to_graph(list(paths))
-    else:
+    else:  # if we want up to a number of combinations
         graph_gen_counter = 0
         for paths in combinations(graph_paths, num_of_g_per_G):
             if graph_gen_counter >= num_of_G: return
             yield load_file_to_graph(list(paths))
             graph_gen_counter += 1
-
-
-def rename():
-    path = '/Users/haochen/Desktop/Broadcast_py/subgraphs/geo_100'
-    for root, subdirs, files in os.walk(path):
-        for file in files:
-            if 'n_100' in file:
-                os.rename(os.path.join(root, file),
-                          os.path.join(root, f'geo_100_{file.split("_")[6]}_{file.split("_")[7]}'))
 
 
 def pick_trusted_nodes(G, graph_list, t_node_set, algorithm, t_node_num_list):
@@ -181,24 +176,6 @@ def pick_trusted_nodes(G, graph_list, t_node_set, algorithm, t_node_num_list):
             trusted_nodes = probability_choose(t_nodes_num, probabilities)
             params_dict[t_nodes_num].update(trusted_nodes)
 
-    # elif algorithm is Algorithm.WEIGHTED_EDGES_RANK:
-    #     edges_num_list = [len(G.edges(n)) for n in G.nodes]  # each entry is the num of edges of a node
-    #
-    #     # each entry = (num of edges of node i, the index of node i),
-    #     edges_num_rank = sorted((e, i) for i, e in enumerate(edges_num_list))
-    #
-    #     for t_nodes_num in t_node_num_list:
-    #         if t_nodes_num > len(G.nodes) - len(t_node_set): raise Exception("Too many trusted nodes")
-    #         new_trusted_nodes = t_node_set.copy()
-    #         # the highest rank, i.e. we want to find the node with max num of edges
-    #         t_node_rank = len(edges_num_rank) - 1
-    #
-    #         while len(new_trusted_nodes) < len(t_node_set) + t_nodes_num:
-    #             new_t_node = edges_num_rank[t_node_rank][1]
-    #             new_trusted_nodes.add(new_t_node)
-    #             t_node_rank -= 1
-    #         params_dict[t_nodes_num].update(new_trusted_nodes)
-
     elif algorithm is Algorithm.DEGREE_CENTRALITY:
         for t_nodes_num in t_node_num_list:
             trusted_nodes = pick_trusted_centrality_edge(G, t_nodes_num)
@@ -209,12 +186,12 @@ def pick_trusted_nodes(G, graph_list, t_node_set, algorithm, t_node_num_list):
             trusted_nodes = pick_trusted_centrality_eigen(G, t_nodes_num)
             params_dict[t_nodes_num].update(trusted_nodes)
 
-    elif algorithm is Algorithm.CLOSSENESS_CENTRALITY:
+    elif algorithm is Algorithm.CLOSENESS_CENTRALITY:
         for t_nodes_num in t_node_num_list:
             trusted_nodes = pick_trusted_centrality_closseness(G, t_nodes_num)
             params_dict[t_nodes_num].update(trusted_nodes)
 
-    elif algorithm is Algorithm.BETWEENNES_CENTRALITY:
+    elif algorithm is Algorithm.BETWEENNESS_CENTRALITY:
         for t_nodes_num in t_node_num_list:
             trusted_nodes = pick_trusted_centrality_betweeness(G, t_nodes_num)
             params_dict[t_nodes_num].update(trusted_nodes)
@@ -244,10 +221,10 @@ def simulation_batch():
         params_dict_2 = pick_trusted_nodes(G, g_list, t_set, Algorithm.EIGEN_CENTRALITY, t_nodes_list)
         simulation(G, params_dict_2, result_dict, 1)
 
-        params_dict_3 = pick_trusted_nodes(G, g_list, t_set, Algorithm.CLOSSENESS_CENTRALITY, t_nodes_list)
+        params_dict_3 = pick_trusted_nodes(G, g_list, t_set, Algorithm.CLOSENESS_CENTRALITY, t_nodes_list)
         simulation(G, params_dict_3, result_dict, 2)
 
-        params_dict_4 = pick_trusted_nodes(G, g_list, t_set, Algorithm.BETWEENNES_CENTRALITY, t_nodes_list)
+        params_dict_4 = pick_trusted_nodes(G, g_list, t_set, Algorithm.BETWEENNESS_CENTRALITY, t_nodes_list)
         simulation(G, params_dict_4, result_dict, 3)
 
     # iterate the default dict to generate a normal dict for serializing
@@ -263,9 +240,9 @@ def simulation_batch():
 
 if __name__ == '__main__':
     result_dict = simulation_batch()
-
-    with open("result_dict.pickle", "wb") as output_file:
+    with open("result_dict_456.pickle", "wb") as output_file:
         dump(result_dict, output_file)
+
     # with open("result_dict.pickle", "rb") as input_file:
     #     result_dict = load(input_file)
     #     for k, v in result_dict.items():

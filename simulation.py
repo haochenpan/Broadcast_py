@@ -1,11 +1,6 @@
 import networkx as nx
-from collections import deque
 from random import *
-import matplotlib.pyplot as plt
 import pickle
-from broadcasting import broadcast, broadcast_for_gui
-
-import os
 
 ###################################################
 # Configuration Variable
@@ -32,6 +27,7 @@ STRATEGY = 0
 
 RATIO_LIST = [3, 1, 1, 2, 2]
 TOTAL_RATIO = 9
+
 
 # PROJECT_DIR = "/Users/haochen/Desktop/Broadcast_py/"
 
@@ -127,9 +123,9 @@ def load_file_to_graph(file_list):
     return total_graph, sub_graph_list, set(sub_graph_src_id)
 
 
-
 def main():
     pass
+
 
 if __name__ == '__main__':
     main()
