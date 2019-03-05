@@ -86,7 +86,6 @@ def pick_trusted_nodes(G, graph_list, t_node_set, algorithm, t_node_num_list):
 
     # its hard to figure out a list of probabilities that does not incl t_node_set but add up to 1
     # so here we choose an element by element, then test whether we have desired number of nodes
-    # TODO: do it!
     def probability_choose(new_pick_num, prob):
         t_nodes = t_node_set.copy()
         if new_pick_num > len(G.nodes) - len(t_nodes): raise Exception("Too many trusted nodes")
@@ -164,48 +163,76 @@ def pick_trusted_nodes(G, graph_list, t_node_set, algorithm, t_node_num_list):
             prob_of_graph = [(1 / len(graph_list)) * (1 / len(graph.nodes)) for n in graph.nodes]
             probabilities.extend(prob_of_graph)
 
-        for t_nodes_num in t_node_num_list:
-            trusted_nodes = probability_choose(t_nodes_num, probabilities)
-            params_dict[t_nodes_num].update(trusted_nodes)
+        for t_node_num in t_node_num_list:
+            trusted_nodes = probability_choose(t_node_num, probabilities)
+            params_dict[t_node_num].update(trusted_nodes)
 
     elif algorithm is Algorithm.WEIGHTED_EDGES_PROB:
         # the probability of {a node is chosen} = ((# of edges / 2) / total # of edges)
         probabilities = list(map(lambda n: (len(G.edges(n)) / 2) / G.number_of_edges(), G.nodes))
 
-        for t_nodes_num in t_node_num_list:
-            trusted_nodes = probability_choose(t_nodes_num, probabilities)
-            params_dict[t_nodes_num].update(trusted_nodes)
+        for t_node_num in t_node_num_list:
+            trusted_nodes = probability_choose(t_node_num, probabilities)
+            params_dict[t_node_num].update(trusted_nodes)
 
     elif algorithm is Algorithm.DEGREE_CENTRALITY:
-        for t_nodes_num in t_node_num_list:
-            trusted_nodes = pick_trusted_centrality_edge(G, t_nodes_num)
-            params_dict[t_nodes_num].update(trusted_nodes)
+        for t_node_num in t_node_num_list:
+            trusted_nodes = pick_trusted_centrality_edge(G, t_node_num)
+            params_dict[t_node_num].update(trusted_nodes)
+            params_dict[t_node_num].update(t_node_set.copy())
 
     elif algorithm is Algorithm.EIGEN_CENTRALITY:
-        for t_nodes_num in t_node_num_list:
-            trusted_nodes = pick_trusted_centrality_eigen(G, t_nodes_num)
-            params_dict[t_nodes_num].update(trusted_nodes)
+        for t_node_num in t_node_num_list:
+            trusted_nodes = pick_trusted_centrality_eigen(G, t_node_num)
+            params_dict[t_node_num].update(trusted_nodes)
+            params_dict[t_node_num].update(t_node_set.copy())
 
     elif algorithm is Algorithm.CLOSENESS_CENTRALITY:
-        for t_nodes_num in t_node_num_list:
-            trusted_nodes = pick_trusted_centrality_closseness(G, t_nodes_num)
-            params_dict[t_nodes_num].update(trusted_nodes)
+        for t_node_num in t_node_num_list:
+            trusted_nodes = pick_trusted_centrality_closseness(G, t_node_num)
+            params_dict[t_node_num].update(trusted_nodes)
+            params_dict[t_node_num].update(t_node_set.copy())
 
     elif algorithm is Algorithm.BETWEENNESS_CENTRALITY:
-        for t_nodes_num in t_node_num_list:
-            trusted_nodes = pick_trusted_centrality_betweeness(G, t_nodes_num)
-            params_dict[t_nodes_num].update(trusted_nodes)
+        for t_node_num in t_node_num_list:
+            trusted_nodes = pick_trusted_centrality_betweeness(G, t_node_num)
+            params_dict[t_node_num].update(trusted_nodes)
+            params_dict[t_node_num].update(t_node_set.copy())
 
     return params_dict
 
 
-def simulation(G, params_dict, result_dict, algorithm_num):
-    for num_of_trusted_nodes, trusted_nodes_set in params_dict.items():
-        num_of_commits, num_of_rounds = broadcast(G, faulty_nodes=set(), trusted_nodes=trusted_nodes_set)
-        result_dict[num_of_trusted_nodes][algorithm_num].append(num_of_rounds)
-
-
 def simulation_batch():
+
+    def simulate_rank(algorithm):
+        """
+        Used in deterministic algorithms 0, 1, 2, and 3. Generates a params dict and run simulation once
+        :param algorithm: an entry like Algorithm.DEGREE_CENTRALITY
+        :return: no return but updates the result_dict
+        """
+        params_dict = pick_trusted_nodes(G, g_list, t_set, algorithm, t_nodes_list)
+        for num_of_t_nodes, t_nodes_set in params_dict.items():
+            num_of_commits, num_of_rounds = broadcast(G, faulty_nodes=set(), trusted_nodes=t_nodes_set)
+            result_dict[num_of_t_nodes][algorithm.value].append(num_of_rounds)
+
+    def simulate_prob(algorithm, num_of_sim):
+        """
+        Used in probalistic algorithms 4, 5, and 6. Generates params dict n times and run n times simulation
+        :param algorithm: an entry like Algorithm.UNIFORM_CHOOSE_PROB_1
+        :param num_of_sim: number of simulations on that graph with that algorithm
+        :return: no return but updates the result_dict
+        """
+        temp_result_dict = defaultdict(lambda: [])
+        for i in range(num_of_sim):
+            params_dict = pick_trusted_nodes(G, g_list, t_set, algorithm, t_nodes_list)
+            for num_of_t_nodes, t_nodes_set in params_dict.items():
+                num_of_commits, num_of_rounds = broadcast(G, faulty_nodes=set(), trusted_nodes=t_nodes_set)
+                temp_result_dict[num_of_t_nodes].append(num_of_rounds)
+
+        for num_of_t_nodes, num_of_rounds_list in temp_result_dict.items():
+            # print(num_of_rounds_list)
+            result_dict[num_of_t_nodes][algorithm.value].append(sum(num_of_rounds_list) / len(num_of_rounds_list))
+
     # {key: num of trusted; value: {key: algo enum; value: num of rounds}}
     result_dict = defaultdict(lambda: defaultdict(lambda: []))
 
@@ -214,18 +241,9 @@ def simulation_batch():
 
         t_nodes_list = [i for i in range(10)]
         t_nodes_list.extend([i for i in range(30, 271, 30)])
-
-        params_dict_1 = pick_trusted_nodes(G, g_list, t_set, Algorithm.DEGREE_CENTRALITY, t_nodes_list)
-        simulation(G, params_dict_1, result_dict, 0)
-
-        params_dict_2 = pick_trusted_nodes(G, g_list, t_set, Algorithm.EIGEN_CENTRALITY, t_nodes_list)
-        simulation(G, params_dict_2, result_dict, 1)
-
-        params_dict_3 = pick_trusted_nodes(G, g_list, t_set, Algorithm.CLOSENESS_CENTRALITY, t_nodes_list)
-        simulation(G, params_dict_3, result_dict, 2)
-
-        params_dict_4 = pick_trusted_nodes(G, g_list, t_set, Algorithm.BETWEENNESS_CENTRALITY, t_nodes_list)
-        simulation(G, params_dict_4, result_dict, 3)
+        simulate_prob(Algorithm.UNIFORM_CHOOSE_PROB_1, 10)
+        simulate_prob(Algorithm.UNIFORM_CHOOSE_PROB_2, 10)
+        simulate_prob(Algorithm.WEIGHTED_EDGES_PROB, 10)
 
     # iterate the default dict to generate a normal dict for serializing
     outside_dict = dict()
@@ -239,11 +257,11 @@ def simulation_batch():
 
 
 if __name__ == '__main__':
-    result_dict = simulation_batch()
-    with open("result_dict_456.pickle", "wb") as output_file:
-        dump(result_dict, output_file)
+    # result_dict = simulation_batch()
+    # with open("result_dict_456.pickle", "wb") as output_file:
+    #     dump(result_dict, output_file)
 
-    # with open("result_dict.pickle", "rb") as input_file:
+    # with open("result_dict_456.pickle", "rb") as input_file:
     #     result_dict = load(input_file)
     #     for k, v in result_dict.items():
     #         print(k)

@@ -1,5 +1,4 @@
 from collections import defaultdict, deque
-from gui import Sim
 from itertools import combinations
 from pickle import dump, load
 from time import time
