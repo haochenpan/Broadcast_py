@@ -14,9 +14,9 @@ MAX_NUMBER_OF_FAULT_NODES = 3
 NUMBER_OF_NODES_GO_TO_NEXT_SRC = 2 * MAX_NUMBER_OF_FAULT_NODES + 1
 
 # List of fileName that you want to concat together
-List_OF_FILE_NAME = ["n_300_f_3_geo_th_0.15_1.pi", "n_300_f_3_geo_th_0.25_1.pi",
-                     "n_300_f_3_geo_th_0.25_2.pi", "test_300_0.2_node_geo",
-                     "test_300_0.17_node_geo"]
+List_OF_FILE_NAME = ["geo_300_0.15_1", "geo_300_0.25_2",
+                     "geo_300_0.25_3", "geo_300_0.25_1",
+                     "geo_300_0.17_1"]
 
 TRUSTED_SRC_NODES = [0, 300, 600, 900, 1200]
 

@@ -87,16 +87,16 @@ def pick_trusted_nodes(G, graph_list, t_node_set, algorithm, t_node_num_list):
 
 
 def simulation(G, params_dict, result_dict):
-    print("*** a round of sim started ***")
+    print("*** a round of sim has started ***")
     for num_of_trusted_nodes, trusted_nodes_set in params_dict.items():
         num_of_commits, num_of_rounds = broadcast(G, faulty_nodes=set(), trusted_nodes=trusted_nodes_set)
         result_dict[num_of_trusted_nodes].append(num_of_rounds)
 
 
 def simulation_batch():
-    g_path_1 = 'n_300_f_3_geo_th_0.15_1.pi'
-    g_path_2 = 'n_300_f_3_geo_th_0.25_1.pi'
-    g_path_3 = 'test_400_0.14_node_geo'
+    g_path_1 = 'geo_300_0.15_1'
+    g_path_2 = 'geo_300_0.25_2'
+    g_path_3 = 'geo_400_0.14_1'
     G, g_list, t_set = load_file_to_graph([g_path_1, g_path_2, g_path_3])
     # TODO: params_dict should be created many times only for probabilistic algorithm
     params_dict_1 = pick_trusted_nodes(G, g_list, t_set, Algorithm.WEIGHTED_EDGES_RANK, [6, 12, 18])
