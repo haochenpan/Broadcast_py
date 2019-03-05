@@ -6,6 +6,7 @@ import pickle
 from broadcasting import broadcast, broadcast_for_gui
 from collections import OrderedDict
 from operator import itemgetter
+import os
 
 ###################################################
 # Configuration Variable
@@ -16,9 +17,9 @@ MAX_NUMBER_OF_FAULT_NODES = 3
 NUMBER_OF_NODES_GO_TO_NEXT_SRC = 2 * MAX_NUMBER_OF_FAULT_NODES + 1
 
 # List of fileName that you want to concat together
-List_OF_FILE_NAME = ["n_300_f_3_geo_th_0.15_1.pi", "n_300_f_3_geo_th_0.25_1.pi",
-                     "n_300_f_3_geo_th_0.25_2.pi", "test_300_0.2_node_geo",
-                     "test_300_0.17_node_geo"]
+# List_OF_FILE_NAME = ["geo_300_0.15_1", "geo_300_0.25_2",
+#                      "geo_300_0.25_3", "geo_300_0.25_1",
+#                      "geo_300_0.17_1"]
 
 TRUSTED_SRC_NODES = [0, 300, 600, 900, 1200]
 
@@ -33,7 +34,7 @@ STRATEGY = 0
 RATIO_LIST = [3, 1, 1, 2, 2]
 TOTAL_RATIO = 9
 
-DIRECTORY = "/Users/yingjianwu/Desktop/broadcast/Broadcast_py/subgraphs/"
+# PROJECT_DIR = "/Users/haochen/Desktop/Broadcast_py/"
 
 
 #################################################
@@ -67,11 +68,11 @@ def generate_bad_nodes_id(src_id, total_nodes_count):
 def concat_two_graph(current_src_id, current_sub_graph_file_name, manual_link=None, prev_src_graph=None):
     # Means no prev_graph, just return the graph loaded from file
     if prev_src_graph is None:
-        current_sub_graph = pickle.load(open(DIRECTORY + current_sub_graph_file_name, "rb"))
+        current_sub_graph = pickle.load(open(current_sub_graph_file_name, "rb"))
         # print("Ratio", len(current_sub_graph.edges) / 300)
         return current_sub_graph, current_sub_graph
     else:
-        current_sub_graph = pickle.load(open(DIRECTORY + current_sub_graph_file_name, "rb"))
+        current_sub_graph = pickle.load(open(current_sub_graph_file_name, "rb"))
         # print("Ratio", len(current_sub_graph.edges) / 300)
 
         # 1. Need to move the id for current_sub_graph
@@ -103,20 +104,19 @@ def load_file_to_graph(file_list):
 
     total_graph = None
 
-    for i in range(len(file_list)):
+    for i, file in enumerate(file_list):
         # Now we are going to concat graph from a file
-        current_file_name = List_OF_FILE_NAME[i]
 
         # record the src id
         sub_graph_src_id.append(current_src_id)
 
         # Now start building the graph
         if i == 0:
-            total_graph, append_sub_graph = concat_two_graph(current_src_id, current_file_name)
+            total_graph, append_sub_graph = concat_two_graph(current_src_id, file)
 
         # Other general Cases
         else:
-            total_graph, append_sub_graph = concat_two_graph(current_src_id, current_file_name, links, total_graph)
+            total_graph, append_sub_graph = concat_two_graph(current_src_id, file, links, total_graph)
 
         # Append the subgraph to our list
         sub_graph_list.append(append_sub_graph)
@@ -125,7 +125,7 @@ def load_file_to_graph(file_list):
 
         current_src_id = len(total_graph.nodes)
 
-    return total_graph, sub_graph_list, sub_graph_src_id
+    return total_graph, sub_graph_list, set(sub_graph_src_id)
 
 
 # assigns an importance score based purely on the number of links held by each node.
@@ -185,10 +185,9 @@ def centrality_top_k(centrality_dict, num_of_trusted):
 
 
 def main():
-    graph = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/subgraphs/n_300_f_3_geo_th_0.15_1.pi","rb"))
+    graph = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/subgraphs/geo_300_0.15_1", "rb"))
     print(pick_trusted_centrality_eigen(graph, 3))
 
 
 if __name__ == '__main__':
     main()
-
