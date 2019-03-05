@@ -68,7 +68,7 @@ def generate_good_nodes_id(current_src_id, total_nodes_count, local_bad_nodes, n
     return sample(trusted_node_candidates, num_trusted_generate)
 
 
-def concat_two_graph(prev_src_id, current_src_id, current_sub_graph_file_name, manual_link=None, prev_src_graph=None):
+def concat_two_graph(current_src_id, current_sub_graph_file_name, manual_link=None, prev_src_graph=None):
     # Means no prev_graph, just return the graph loaded from file
     if prev_src_graph is None:
         current_sub_graph = pickle.load(open(DIRECTORY + current_sub_graph_file_name, "rb"))
@@ -98,7 +98,6 @@ def concat_two_graph(prev_src_id, current_src_id, current_sub_graph_file_name, m
 # Note: fault nodes are not arbitrary
 # Note: all the previous source node will act like a trusted node
 def concat_graph_main(added_nodes_list):
-    prev_src_id = 0
     current_src_id = 0
     concat_fault_list = []
 
@@ -110,18 +109,18 @@ def concat_graph_main(added_nodes_list):
 
     links = []
 
+    total_graph = None
     for i in range(len(List_OF_FILE_NAME)):
         # Now we are going to concat graph from a file
         current_file_name = List_OF_FILE_NAME[i]
 
         # Now start building the graph
         if i == 0:
-            total_graph = concat_two_graph(prev_src_id, current_src_id, current_file_name)
+            total_graph = concat_two_graph(current_src_id, current_file_name)
 
         # Other general Cases
         else:
-            total_graph = concat_two_graph(prev_src_id, current_src_id,
-                                           current_file_name, links, total_graph)
+            total_graph = concat_two_graph(current_src_id, current_file_name, links, total_graph)
 
         # Node number after a new concatination
         current_total_nodes = len(total_graph.nodes)
@@ -154,8 +153,6 @@ def concat_graph_main(added_nodes_list):
         # Generate the links to link with the next graph
 
         links = random_generate_link(current_src_id, len(total_graph.nodes))
-        # Preparing to link to the next graph
-        prev_src_id = current_src_id
         # the new added src_id is always the previous graph last index + 1, which is the old_total_graph length
         current_src_id = len(total_graph.nodes)
 

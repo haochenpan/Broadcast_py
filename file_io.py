@@ -9,6 +9,16 @@ rootdir = os.path.join(os.getcwd(), 'subgraphs')
 def batch_load_file_to_graph(num_of_G, num_of_g_per_G,
                              g_type=['geo'], num_of_nodes_per_g=[300, 400],
                              graph_param='all', arrangement='random'):
+    """
+    A generator function that provides an iterator of a (G, [g, ...], {t, ...}) tuple created by load_file_to_graph()
+    :param num_of_G: the number of "concated" graphs need to be generated, if = 0, then generates all combinations
+    :param num_of_g_per_G: the number of "subgraphs" in a "concated" graph
+    :param g_type: the type of the subgraph, e.g. "geo"
+    :param num_of_nodes_per_g:
+    :param graph_param:
+    :param arrangement:
+    :return:
+    """
     graph_paths = []
     for root, subdirs, files in os.walk(rootdir):
         files = filter(lambda x: x.split('_')[0] in g_type, files)  # filter graph of that type

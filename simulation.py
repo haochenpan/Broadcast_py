@@ -128,22 +128,39 @@ def load_file_to_graph(file_list):
     return total_graph, sub_graph_list, set(sub_graph_src_id)
 
 
+# assigns an importance score based purely on the number of links held by each node.
+# finding very connected individuals, popular individuals,
+# individuals who are likely to hold most information or individuals who can quickly connect with the wider network
 def pick_trusted_centrality_edge(graph, num_of_trusted):
     centrality_dict = nx.degree_centrality(graph)
     return centrality_top_k(centrality_dict, num_of_trusted)
 
 
+# Like degree centrality, EigenCentrality measures a node’s influence based on
+# the number of links it has to other nodes within the network.
+# EigenCentrality then goes a step further by also taking into account
+# how well connected a node is, and how many links their connections have, and so on through the network.
+# EigenCentrality can identify nodes with influence over the whole network, not just those directly connected to it.
 def pick_trusted_centrality_eigen(graph, num_of_trusted):
     # Max_iter needs to manually set up based on different graph
     centrality_dict = nx.eigenvector_centrality(graph, max_iter=500)
     return centrality_top_k(centrality_dict, num_of_trusted)
 
 
+# measure scores each node based on their ‘closeness’ to all other nodes within the network
+# calculates the shortest paths between all nodes, then assigns each node a score based on its sum of shortest paths
+# For finding the individuals who are best placed to influence the entire network most quickly
+# Closeness centrality can help find good ‘broadcasters’,
+# but in a highly connected network you will often find all nodes have a similar score.
+# What may be more useful is using Closeness to find influences within a single cluster
+# This may not works for geometric graph because geometric is also based on distance
 def pick_trusted_centrality_closseness(graph, num_of_trusted):
     centrality_dict = nx.closeness_centrality(graph)
     return centrality_top_k(centrality_dict, num_of_trusted)
 
 
+# Betweenness centrality measures the number of times a node lies on the shortest path between other nodes
+# Not sure
 def pick_trusted_centrality_betweeness(graph, num_of_trusted):
     centrality_dict = nx.betweenness_centrality(graph)
     return centrality_top_k(centrality_dict, num_of_trusted)
