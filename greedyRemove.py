@@ -311,7 +311,7 @@ def simulation_batch():
 
         for num_of_t_nodes, t_nodes_set in params_dict.items():
             num_of_commits, num_of_rounds = broadcast(G, faulty_nodes=set(), trusted_nodes = t_nodes_set)
-            result_dict[num_of_t_nodes]['remove_greedy_globalView'].append(num_of_rounds)
+            result_dict[num_of_t_nodes][7].append(num_of_rounds)
 
     # iterate the default dict to generate a normal dict for serializing
     outside_dict = dict()

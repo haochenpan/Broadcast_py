@@ -60,6 +60,153 @@ def alg_compare_graph(result_dict):
         plt.savefig(f"testing_int{num_trusted}")
         plt.clf()
 
+#
+# def bar_graph():
+
+
+# Individual graph
+# x_axis: # trused nodes
+# y_axis: $ rounds
+def line_graph(result_dict, graph_num):
+    x_axis = []
+    for num_trusted in result_dict.keys():
+        x_axis.append(num_trusted)
+
+    # index represents the id of individual algorithm
+    # each value represents the list of number of rounds corresponding to number of trusted
+    total_list = []
+
+    small_dict = result_dict[0]
+
+    num_alg = len(small_dict.keys())
+
+    for i in range(num_alg):
+        total_list.append([])
+
+    for num_trusted, small_dict in result_dict.items():
+        for alg_idx, rounds in small_dict.items():
+            total_list[alg_idx].append(rounds[graph_num])
+
+    for alg_label in range(len(total_list)):
+        rounds_list = total_list[alg_label]
+        if alg_label == 0:
+            plt.plot(x_axis, rounds_list, 'r', label='DEGREE_CENTRALITY')
+
+        elif alg_label == 1:
+            plt.plot(x_axis, rounds_list, 'b', label='EIGEN_CENTRALITY')
+
+        elif alg_label == 2:
+            plt.plot(x_axis, rounds_list, 'g', label='CLOSENESS_CENTRALITY')
+
+        elif alg_label == 3:
+            plt.plot(x_axis, rounds_list, 'y', label='BETWEENNESS_CENTRALITY')
+
+        elif alg_label == 4:
+            plt.plot(x_axis, rounds_list, 'c', label='UNIFORM_TOTAL')
+
+        elif alg_label == 5:
+            plt.plot(x_axis, rounds_list, 'm', label='UNIFORM_SUB')
+
+        elif alg_label == 6:
+            plt.plot(x_axis, rounds_list, 'k', label='WEIGHTED_EDGEs')
+
+        elif alg_label == 7:
+            plt.plot(x_axis, rounds_list, 'tab:purple', label='remove_neis')
+
+    plt.legend(loc='best')
+    plt.xlabel("Number of trusted")
+    plt.ylabel("Number of rounds")
+    plt.title(f"Medium, graph_id:{graph_num}")
+    # plt.show()
+    plt.savefig(f"Medium, graph_id:{graph_num}")
+    plt.clf()
+
+
+# Individual graph
+# x_axis: # trused nodes
+# y_axis: $ rounds
+def line_graph_head(result_dict, graph_num, top_k_trusted):
+    x_axis = []
+    for num_trusted in result_dict.keys():
+        if num_trusted <= top_k_trusted:
+            x_axis.append(num_trusted)
+
+    # index represents the id of individual algorithm
+    # each value represents the list of number of rounds corresponding to number of trusted
+    total_list = []
+
+    small_dict = result_dict[0]
+
+    num_alg = len(small_dict.keys())
+
+    for i in range(num_alg):
+        total_list.append([])
+
+    for num_trusted, small_dict in result_dict.items():
+        if num_trusted <= top_k_trusted:
+            for alg_idx, rounds in small_dict.items():
+                total_list[alg_idx].append(rounds[graph_num])
+
+    for alg_label in range(len(total_list)):
+        rounds_list = total_list[alg_label]
+        if alg_label == 0:
+            plt.plot(x_axis, rounds_list, 'r', label='DEGREE_CENTRALITY')
+
+        elif alg_label == 1:
+            plt.plot(x_axis, rounds_list, 'b', label='EIGEN_CENTRALITY')
+
+        elif alg_label == 2:
+            plt.plot(x_axis, rounds_list, 'g', label='CLOSENESS_CENTRALITY')
+
+        elif alg_label == 3:
+            plt.plot(x_axis, rounds_list, 'y', label='BETWEENNESS_CENTRALITY')
+
+        elif alg_label == 4:
+            plt.plot(x_axis, rounds_list, 'c', label='UNIFORM_TOTAL')
+
+        elif alg_label == 5:
+            plt.plot(x_axis, rounds_list, 'm', label='UNIFORM_SUB')
+
+        elif alg_label == 6:
+            plt.plot(x_axis, rounds_list, 'k', label='WEIGHTED_EDGEs')
+
+        elif alg_label == 7:
+            plt.plot(x_axis, rounds_list, 'tab:purple', label='REMOVE_NEIS')
+
+    plt.legend(loc='best')
+    plt.xticks(np.arange(0, 10, 1.0))
+    plt.xlabel("Number of trusted")
+    plt.ylabel("Number of rounds")
+    plt.title(f"Medium, graph_id:{graph_num}_head_rounds")
+    plt.savefig(f"Medium, graph_id:{graph_num}_head_rounds")
+    plt.show()
+    plt.clf()
+
+
+def bar_graph(graph_id, result_dict):
+    # Title: Number of trusted in graph_id {}
+
+    # x_axis = [algorithm]
+    x_axis = ['DEGREE', 'EIGEN', 'CLOSENESS', 'BETWEENNESS', 'U_TOTAL', 'U_sub', 'W_EDGEs', 'REMOVE_NEIS']
+    # y_axis = lantency
+    bottom = 5
+    top = 9
+    for num_trusted, small_dic in result_dict.items():
+        y_local_list = []
+        for alg_name, rounds_list in small_dic.items():
+            y_local_list.append(rounds_list[graph_id])
+        plt.xlabel("Algorithm_Name")
+        plt.ylabel("Latency (rounds)")
+        index = np.arange(len(x_axis))
+        plt.xticks(index, x_axis, fontsize = 3)
+        plt.yticks(np.arange(bottom , top, step = 1))
+        plt.ylim(bottom,top)
+        plt.bar(x_axis, y_local_list)
+        plt.title(f"Dense: Number of trusted {num_trusted} in graph_id {graph_id}")
+        # plt.show()
+        plt.savefig(f"{num_trusted}_Bar")
+        plt.clf()
+
 
 # key: number of trusted
 # value: small dict:
@@ -80,4 +227,6 @@ if __name__ == '__main__':
         for a, b in v.items():
             small_dict_in_result_dict[a] = b
 
-    alg_compare_graph(result_dict)
+    graph_id = 9
+    bar_graph(graph_id, result_dict)
+
