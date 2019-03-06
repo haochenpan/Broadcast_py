@@ -46,11 +46,11 @@ def alg_compare_graph(result_dict):
             elif alg_label == 3:
                 plt.plot(list(range(len(rounds_list))), rounds_list, 'y--', label='BETWEENNESS_CENTRALITY')
             elif alg_label == 4:
-                plt.plot(list(range(len(rounds_list))), rounds_list, 'p--', )
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'c--', label='UNIFORM_TOTAL')
             elif alg_label == 5:
-                plt.plot(list(range(len(rounds_list))), rounds_list, 'm--', )
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'm--', label='UNIFORM_SUB')
             elif alg_label == 6:
-                plt.plot(list(range(len(rounds_list))), rounds_list, 'k--', )
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'k--', label='WEIGHTED_EDGEs')
         plt.xticks(np.arange(0, len(rounds_list), 1.0))
         plt.legend(loc='best')
         plt.title(f"number of trusted node : {num_trusted}")
@@ -58,6 +58,16 @@ def alg_compare_graph(result_dict):
         plt.clf()
 
 
+# key: number of trusted
+# value: small dict:
+    # key: algorithm name
+    # number of rounds
 if __name__ == '__main__':
-    result_dict = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/result_dict.pickle", "rb"))
+    result_dict = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/result_dict_0123.pickle", "rb"))
+    result_dict_456 = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/result_dict_456.pickle", "rb"))
+
+    for k, v in result_dict_456.items():
+        small_dict_in_result_dict = result_dict[k]
+        for a, b in v.items():
+            small_dict_in_result_dict[a] = b
     alg_compare_graph(result_dict)
