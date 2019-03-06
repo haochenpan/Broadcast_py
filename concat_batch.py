@@ -109,6 +109,7 @@ def concat_graph_main(added_nodes_list):
 
     links = []
 
+    total_graph = None
     for i in range(len(List_OF_FILE_NAME)):
         # Now we are going to concat graph from a file
         current_file_name = List_OF_FILE_NAME[i]

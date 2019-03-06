@@ -1,6 +1,6 @@
 GCE:
     sudo apt-get update -y
-    sudo apt-get install make gcc zlib1g-dev libffi-dev openssl-dev zip -y
+    sudo apt-get install make gcc zlib1g-dev libffi-dev libssl-dev zip -y
     sudo apt-get install build-essential checkinstall -y
 
 EC2:
@@ -31,7 +31,7 @@ Clean up and import the project
     cp venv/bin/activate ~/broadcast
     source venv/bin/activate
     rz
-    pip3 install -r 1.txt
+    pip3 install -r requirement.txt
     rm 1.txt -f
 
 Install MongoDB

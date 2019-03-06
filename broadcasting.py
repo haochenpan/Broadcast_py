@@ -1,5 +1,4 @@
 from collections import defaultdict, deque
-from gui import Sim
 from itertools import combinations
 from pickle import dump, load
 from time import time
@@ -79,7 +78,7 @@ def check_graph(G) -> bool:
     return True
 
 
-def broadcast(graph, faulty_nodes: set, trusted_nodes=set()):
+def broadcast(graph, faulty_nodes=set(), trusted_nodes=set()):
     """
     Given a potentially desired graph and a set of faulty nodes,
     do a broadcasting to see whether all non-faulty nodes are able to receive the source's commit
@@ -112,7 +111,7 @@ def broadcast(graph, faulty_nodes: set, trusted_nodes=set()):
             curr_node = non_faulty_commit_queue.popleft()
             curr_node_neis = [edge[1] for edge in graph.edges(curr_node)]  # all outgoing neighbours of the current node
 
-            if curr_node == 0 or curr_node in trusted_nodes:  # if this commit comes from the source or trusted nodes
+            if curr_node in trusted_nodes:  # if this commit comes from the source or trusted nodes
                 for nei in curr_node_neis:
                     # If this node has committed before (due to cyclic graph) OR if this node is faulty, ignore it;
                     if nei in non_faulty_has_committed or nei in faulty_nodes:
@@ -136,7 +135,7 @@ def broadcast(graph, faulty_nodes: set, trusted_nodes=set()):
     return len(non_faulty_has_committed), curr_round
 
 
-def broadcast_for_gui(graph, faulty_nodes: set, trusted_nodes=set()):
+def broadcast_for_gui(graph, faulty_nodes=set(), trusted_nodes=set()):
     """
         To optimize the running time, separate the broadcast method to two version,
         one is for GUI (this one), and one is for validating a graph (the one in ProofByBroadcasting)
@@ -147,50 +146,55 @@ def broadcast_for_gui(graph, faulty_nodes: set, trusted_nodes=set()):
     curr_round = 0
     non_faulty_commit_queue = deque()
     non_faulty_commit_queue.append(0)
-    non_faulty_has_committed = {0}
-    faulty_has_committed = set()  # <- for GUI
+    non_faulty_has_committed = {0}  # <- for non-faulty and trusted nodes
+    faulty_has_committed = set()  # <- for faulty
     propose_received = defaultdict(lambda: 0)
     gui_dict = dict()  # <- for GUI
-    gui_dict[curr_round] = [[0], []]  # <- for GUI
+    gui_dict[curr_round] = [[], [], [0]]  # <- for GUI
 
     # Round >= 1: all non-faulty nodes commits
     while len(non_faulty_commit_queue):  # while not all nodes have committed
         curr_round += 1  # for debugging and GUI directory
-        curr_round_non_faulty_commits, curr_round_faulty_commits = set(), set()  # <- for GUI
+        non_faulty_commits, faulty_commits, trusted_commits = set(), set(), set()  # <- for GUI
 
         for curr_node in range(len(non_faulty_commit_queue)):
             curr_node = non_faulty_commit_queue.popleft()
             curr_node_neis = [edge[1] for edge in graph.edges(curr_node)]  # all outgoing neighbours of the current node
 
-            if curr_node == 0 or curr_node in trusted_nodes:  # if this commit comes from the source or trusted nodes
+            if curr_node in trusted_nodes:  # if this commit comes from the source or trusted nodes
                 for nei in curr_node_neis:
                     if nei not in faulty_nodes:
                         if nei not in non_faulty_has_committed:
-                            non_faulty_commit_queue.append(nei)
+                            if nei in trusted_nodes:
+                                trusted_commits.add(nei)
+                            else:
+                                non_faulty_commits.add(nei)
                             non_faulty_has_committed.add(nei)
-                            curr_round_non_faulty_commits.add(nei)
+                            non_faulty_commit_queue.append(nei)
                     else:
                         if nei not in faulty_has_committed:
                             faulty_has_committed.add(nei)
-                            curr_round_faulty_commits.add(nei)
+                            faulty_commits.add(nei)
 
             else:
                 for nei in curr_node_neis:
                     if nei in faulty_nodes:
                         if nei not in faulty_has_committed:
                             faulty_has_committed.add(nei)
-                            curr_round_faulty_commits.add(nei)
+                            faulty_commits.add(nei)
                     else:
                         if nei not in non_faulty_has_committed:
-                            # TODO: does MAX_FAULTY_NODES logic goes well with giant graph? yes?
                             propose_received[nei] += 1
                             if propose_received[nei] >= MAX_FAULTY_NODES + 1:
-                                non_faulty_commit_queue.append(nei)
+                                if nei in trusted_nodes:
+                                    trusted_commits.add(nei)
+                                else:
+                                    non_faulty_commits.add(nei)
                                 non_faulty_has_committed.add(nei)
-                                curr_round_non_faulty_commits.add(nei)
+                                non_faulty_commit_queue.append(nei)
 
-        commits_list = [list(curr_round_non_faulty_commits), list(curr_round_faulty_commits)]
-        if commits_list != [[], []]:
+        commits_list = [list(non_faulty_commits), list(faulty_commits), list(trusted_commits)]
+        if commits_list != [[], [], []]:
             gui_dict[curr_round] = commits_list
 
     # total = 0
@@ -236,22 +240,5 @@ def check_desired_graph_main(G):
     print("the graph is desired") if check_graph(G) else print("not a desired graph")
 
 
-# def show_gui_main(G):
-#     TODO: support trusted nodes
-# commits, run_dict = broadcast_for_gui(G, {11, 9, 3})
-# Sim(g=G, d=run_dict)
-
-
 if __name__ == '__main__':
     pass
-    generate_graph_main()
-    # g = propose_graph(GRAPH_TYPE)
-    # print(len(g.nodes))
-    # graph_path = '/Users/haochen/Desktop/Broadcast_py/uni_data_1500_graph.p'
-    # G = load(open(graph_path, "rb"))
-    # trust_nodes = {0, 300, 600, 900, 1200}
-    # bad_nodes = [82, 70, 28, 305, 458, 578, 622, 764, 889, 1020, 1060, 1136, 1210, 1311, 1423]
-    # bad_nodes = set(bad_nodes)
-    # commits_count, run_dict = broadcast_for_gui(G, bad_nodes, trust_nodes)
-    # Sim(g=G, d=run_dict)
-    # check_desired_graph_main(G)
