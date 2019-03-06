@@ -38,19 +38,22 @@ def alg_compare_graph(result_dict):
     for num_trusted, small_dict in result_dict.items():
         for alg_label, rounds_list in small_dict.items():
             if alg_label == 0:
-                plt.plot(list(range(len(rounds_list))), rounds_list, 'r--', label='DEGREE_CENTRALITY')
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'r', label='DEGREE_CENTRALITY')
             elif alg_label == 1:
-                plt.plot(list(range(len(rounds_list))), rounds_list, 'b--', label='EIGEN_CENTRALITY')
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'b', label='EIGEN_CENTRALITY')
             elif alg_label == 2:
-                plt.plot(list(range(len(rounds_list))), rounds_list, 'g--', label='CLOSENESS_CENTRALITY')
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'g', label='CLOSENESS_CENTRALITY')
             elif alg_label == 3:
-                plt.plot(list(range(len(rounds_list))), rounds_list, 'y--', label='BETWEENNESS_CENTRALITY')
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'y', label='BETWEENNESS_CENTRALITY')
             elif alg_label == 4:
-                plt.plot(list(range(len(rounds_list))), rounds_list, 'c--', label='UNIFORM_TOTAL')
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'c', label='UNIFORM_TOTAL')
             elif alg_label == 5:
-                plt.plot(list(range(len(rounds_list))), rounds_list, 'm--', label='UNIFORM_SUB')
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'm', label='UNIFORM_SUB')
             elif alg_label == 6:
-                plt.plot(list(range(len(rounds_list))), rounds_list, 'k--', label='WEIGHTED_EDGEs')
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'k', label='WEIGHTED_EDGEs')
+            elif alg_label == 'remove_greedy_globalView':
+                plt.plot(list(range(len(rounds_list))), rounds_list,  'tab:purple', label='remove_neis')
+
         plt.xticks(np.arange(0, len(rounds_list), 1.0))
         plt.legend(loc='best')
         plt.title(f"number of trusted node : {num_trusted}")
@@ -65,9 +68,16 @@ def alg_compare_graph(result_dict):
 if __name__ == '__main__':
     result_dict = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/result_dict_0123.pickle", "rb"))
     result_dict_456 = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/result_dict_456.pickle", "rb"))
+    result_dict_remove = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/remove_greedy_geo_1.p", "rb"))
 
     for k, v in result_dict_456.items():
         small_dict_in_result_dict = result_dict[k]
         for a, b in v.items():
             small_dict_in_result_dict[a] = b
+
+    for k, v in result_dict_remove.items():
+        small_dict_in_result_dict = result_dict[k]
+        for a, b in v.items():
+            small_dict_in_result_dict[a] = b
+
     alg_compare_graph(result_dict)

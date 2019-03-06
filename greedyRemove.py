@@ -6,7 +6,6 @@ from broadcasting import broadcast
 import numpy as np
 from collections import defaultdict, OrderedDict
 from operator import itemgetter
-from simulation import load_file_to_graph
 import os
 from random import shuffle
 from random import sample
@@ -14,7 +13,7 @@ from itertools import combinations
 
 MAX_NUMBER_OF_FAULT_NODES = 3
 NUMBER_OF_NODES_GO_TO_NEXT_SRC = 2 * MAX_NUMBER_OF_FAULT_NODES + 1
-
+rootdir = os.path.join(os.getcwd(), 'subgraphs')
 
 def load_file_to_greedy_graph(file_list):
     current_src_id = 0
@@ -117,6 +116,9 @@ def remove_greedy_subview_uniform(G, graph_list, t_node_set, t_node_num_list, th
 def remove_greedy_subview_ratio(G, graph_list, t_node_set, t_node_num_list, threshold_parameters):
     return
 
+# key: #trusted
+# value: list of picked id nodes
+
 
 def remove_greedy_globalview(G, t_node_set, t_node_num_list, threshold_parameters):
     result_dict = dict()
@@ -131,26 +133,27 @@ def remove_greedy_globalview(G, t_node_set, t_node_num_list, threshold_parameter
     for num_trusted in t_node_num_list:
         trusted_nodes = pick_trusted_centrality_closseness(G, num_trusted, t_node_set, threshold_to_remove)
         result_dict[num_trusted] = trusted_nodes
+        result_dict[num_trusted].update(t_node_set.copy())
     return result_dict
 
 
 def pick_trusted_centrality_closseness(G, num_trusted, t_node_set, threshold_to_remove):
-        centrality_dict = nx.closeness_centrality(G)
+    centrality_dict = nx.closeness_centrality(G)
 
-        centrality_dict = remove_src(centrality_dict, t_node_set)
+    centrality_dict = remove_src(centrality_dict, t_node_set)
 
-        centrality_dict = order_dict(centrality_dict)
+    centrality_dict = order_dict(centrality_dict)
 
-        # This can be reused once we removing all the neighors in the first round
+    # This can be reused once we removing all the neighors in the first round
+    throw_away_dict = dict()
+
+    return_trusted_nodes_list = []
+    while num_trusted > 0:
+        num_trusted = remove_trusted(G, centrality_dict, throw_away_dict, num_trusted, threshold_to_remove, return_trusted_nodes_list)
+        centrality_dict = order_dict(throw_away_dict)
         throw_away_dict = dict()
 
-        return_trusted_nodes_list = []
-        while num_trusted > 0:
-            num_trusted = remove_trusted(G, centrality_dict, throw_away_dict, num_trusted, threshold_to_remove, return_trusted_nodes_list)
-            centrality_dict = order_dict(throw_away_dict)
-            throw_away_dict = dict()
-
-        return return_trusted_nodes_list
+    return set(return_trusted_nodes_list)
 
 
 # Remove the src from being a candidate for trusted node
@@ -212,8 +215,118 @@ def order_dict(centrality_dict):
     return centrality_dict
 
 
+def load_file_to_greedy_graph(file_list):
+    current_src_id = 0
+    sub_graph_list = []
+    sub_graph_src_id = []
+    threshold_list = []
+
+    links = []
+
+    total_graph = None
+
+    for i, file in enumerate(file_list):
+        # Now we are going to concat graph from a file
+
+        # record the src id
+        sub_graph_src_id.append(current_src_id)
+
+        threshold = get_random_radius_threshold(file)
+        threshold_list.append(threshold)
+
+        # Now start building the graph
+        if i == 0:
+            total_graph, append_sub_graph = concat_two_graph(current_src_id, file)
+
+        # Other general Cases
+        else:
+            total_graph, append_sub_graph = concat_two_graph(current_src_id, file, links, total_graph)
+
+        # Append the subgraph to our list
+        sub_graph_list.append(append_sub_graph)
+
+        links = random_generate_link(current_src_id, len(total_graph.nodes))
+
+        current_src_id = len(total_graph.nodes)
+
+    return total_graph, sub_graph_list, set(sub_graph_src_id), threshold_list
+
+
+def batch_load_file_to_graph(num_of_G, num_of_g_per_G,
+                             g_type=['geo'], num_of_nodes_per_g=[300],
+                             graph_param='all', arrangement='sorted'):
+    """
+    A generator function that provides an iterator of a (G, [g, ...], {t, ...}) tuple created by load_file_to_graph()
+    :param num_of_G: the number of "concated" graphs need to be generated, if = 0, then generates all combinations
+    :param num_of_g_per_G: the number of "subgraphs" in a "concated" graph
+    :param g_type: the type of the subgraph, e.g. "geo"
+    :param num_of_nodes_per_g: e.g. [200, 300]
+    :param graph_param: 'all' or e.g. [0.15, 0.2]
+    :param arrangement: 'sorted' or 'random'
+    :return: a generator that delivers a (G, [g, ...], {t, ...}) tuple
+             up until all combination is given / num_of_G has reached
+    """
+
+    # find all paths of graphs satisfy filters above
+    graph_paths = []
+    for root, subdirs, files in os.walk(rootdir):
+        files = filter(lambda x: x.split('_')[0] in g_type, files)  # filter graph of that type
+        files = filter(lambda x: int(x.split('_')[1]) in num_of_nodes_per_g, files)  # filter graph with that many nodes
+        if graph_param != 'all':
+            files = filter(lambda x: float(x.split('_')[2]) in graph_param, files)  # filter graph with that param
+        files = map(lambda x: os.path.join(root, x), files)  # add full path to the file name
+        graph_paths.extend(files)
+
+    # check a possible exception
+    if len(graph_paths) < num_of_g_per_G:
+        raise Exception(f"subgraphs are not enough, found {len(graph_paths)} but needs at least {num_of_g_per_G}")
+
+    # sort them or shuffle them
+    if arrangement == 'sorted':
+        graph_paths = sorted(graph_paths)
+    elif arrangement == 'random':
+        shuffle(graph_paths)
+
+    # the generator function
+    if num_of_G == 0:  # if we want all combinations
+        for paths in combinations(graph_paths, num_of_g_per_G):
+            yield load_file_to_greedy_graph(list(paths))
+    else:  # if we want up to a number of combinations
+        graph_gen_counter = 0
+        for paths in combinations(graph_paths, num_of_g_per_G):
+            if graph_gen_counter >= num_of_G: return
+            yield load_file_to_greedy_graph(list(paths))
+            graph_gen_counter += 1
+
+
+def simulation_batch():
+    # {key: num of trusted; value: {key: algo enum; value: num of rounds}}
+    result_dict = defaultdict(lambda: defaultdict(lambda: []))
+    for G, g_list, t_set, threshold_list in batch_load_file_to_graph(0, 1, num_of_nodes_per_g=[300]):
+        print("*** a graph sim has started ***")
+        t_nodes_list = [i for i in range(10)]
+        t_nodes_list.extend([i for i in range(30, 271, 30)])
+
+        params_dict = remove_greedy_globalview(G, t_set, t_nodes_list, threshold_list)
+
+        for num_of_t_nodes, t_nodes_set in params_dict.items():
+            num_of_commits, num_of_rounds = broadcast(G, faulty_nodes=set(), trusted_nodes = t_nodes_set)
+            result_dict[num_of_t_nodes]['remove_greedy_globalView'].append(num_of_rounds)
+
+    # iterate the default dict to generate a normal dict for serializing
+    outside_dict = dict()
+    for k, v in result_dict.items():
+        inside_dict = dict()
+        for k2, v2 in v.items():
+            inside_dict[k2] = v2
+        outside_dict[k] = inside_dict
+    return outside_dict
+
+
 if __name__ == '__main__':
     pass
-    file_name = "/Users/yingjianwu/Desktop/broadcast/Broadcast_py/subgraphs/geo_300/geo_300_0.15_1"
-    graph, sub_graph_list, sub_graph_src_id, threshold_parameters = load_file_to_greedy_graph([file_name])
-    print(remove_greedy_globalview(graph, sub_graph_src_id, [270], threshold_parameters))
+    result_dict = simulation_batch()
+    pickle.dump(result_dict, open("remove_greedy_geo_1.p", "wb"))
+
+    # pickle.dump(open("remove_greedy_geo_1.p", "rb"))
+    # print(result_dict)
