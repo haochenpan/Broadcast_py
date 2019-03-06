@@ -189,8 +189,8 @@ def bar_graph(graph_id, result_dict):
     # x_axis = [algorithm]
     x_axis = ['DEGREE', 'EIGEN', 'CLOSENESS', 'BETWEENNESS', 'U_TOTAL', 'U_sub', 'W_EDGEs', 'REMOVE_NEIS']
     # y_axis = lantency
-    bottom = 5
-    top = 9
+    bottom = 10
+    top = 20
     for num_trusted, small_dic in result_dict.items():
         y_local_list = []
         for alg_name, rounds_list in small_dic.items():
@@ -198,11 +198,11 @@ def bar_graph(graph_id, result_dict):
         plt.xlabel("Algorithm_Name")
         plt.ylabel("Latency (rounds)")
         index = np.arange(len(x_axis))
-        plt.xticks(index, x_axis, fontsize = 3)
+        plt.xticks(index, x_axis, fontsize = 5)
         plt.yticks(np.arange(bottom , top, step = 1))
         plt.ylim(bottom,top)
         plt.bar(x_axis, y_local_list)
-        plt.title(f"Dense: Number of trusted {num_trusted} in graph_id {graph_id}")
+        plt.title(f"Sparse: Number of trusted {num_trusted} in graph_id {graph_id}")
         # plt.show()
         plt.savefig(f"{num_trusted}_Bar")
         plt.clf()
@@ -227,6 +227,6 @@ if __name__ == '__main__':
         for a, b in v.items():
             small_dict_in_result_dict[a] = b
 
-    graph_id = 9
+    graph_id = 4
     bar_graph(graph_id, result_dict)
 
