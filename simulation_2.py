@@ -1,14 +1,14 @@
-from enum import Enum
-from pickle import load, dump
-import networkx as nx
 from broadcasting import broadcast
-import numpy as np
 from collections import defaultdict, OrderedDict
-from operator import itemgetter
-from simulation import load_file_to_graph
-import os
-from random import shuffle
+from enum import Enum
 from itertools import combinations
+import networkx as nx
+import numpy as np
+from operator import itemgetter
+import os
+from pickle import load, dump
+from random import shuffle
+from simulation import load_file_to_graph
 
 
 class Algorithm(Enum):
@@ -110,8 +110,13 @@ def pick_trusted_nodes(G, graph_list, t_node_set, algorithm, t_node_num_list):
     # EigenCentrality can identify nodes with influence over the whole network, not just those directly connected to it.
     def pick_trusted_centrality_eigen(graph, num_of_trusted):
         # Max_iter needs to manually set up based on different graph
-        centrality_dict = nx.eigenvector_centrality(graph, max_iter=500)
-        return centrality_top_k(centrality_dict, num_of_trusted)
+        try:
+            centrality_dict = nx.eigenvector_centrality(graph, max_iter=500)
+            return centrality_top_k(centrality_dict, num_of_trusted)
+        except Exception as expected:
+            print("pick_trusted_centrality_eigen exception raised")
+            print(repr(expected))
+            return {-1}  # an exception flag
 
     # measure scores each node based on their ‘closeness’ to all other nodes within the network
     # calculates the shortest paths between all nodes, then assigns each node a score based on its sum of shortest paths
@@ -203,7 +208,6 @@ def pick_trusted_nodes(G, graph_list, t_node_set, algorithm, t_node_num_list):
 
 
 def simulation_batch():
-
     def simulate_rank(algorithm):
         """
         Used in deterministic algorithms 0, 1, 2, and 3. Generates a params dict and run simulation once
@@ -211,9 +215,14 @@ def simulation_batch():
         :return: no return but updates the result_dict
         """
         params_dict = pick_trusted_nodes(G, g_list, t_set, algorithm, t_nodes_list)
-        for num_of_t_nodes, t_nodes_set in params_dict.items():
-            num_of_commits, num_of_rounds = broadcast(G, faulty_nodes=set(), trusted_nodes=t_nodes_set)
-            result_dict[num_of_t_nodes][algorithm.value].append(num_of_rounds)
+        if algorithm is Algorithm.EIGEN_CENTRALITY and -1 in t_set:  # to handle a special exception of Eigen
+            print("excepted detected, append -1 to the list")
+            for num_of_t_nodes, t_nodes_set in params_dict.items():
+                result_dict[num_of_t_nodes][algorithm.value].append(-1)
+        else:
+            for num_of_t_nodes, t_nodes_set in params_dict.items():
+                num_of_commits, num_of_rounds = broadcast(G, faulty_nodes=set(), trusted_nodes=t_nodes_set)
+                result_dict[num_of_t_nodes][algorithm.value].append(num_of_rounds)
 
     def simulate_prob(algorithm, num_of_sim):
         """
@@ -236,14 +245,28 @@ def simulation_batch():
     # {key: num of trusted; value: {key: algo enum; value: num of rounds}}
     result_dict = defaultdict(lambda: defaultdict(lambda: []))
 
-    for G, g_list, t_set in batch_load_file_to_graph(0, 1, num_of_nodes_per_g=[300]):
-        print("*** a graph sim has started ***")
+    # for testing
+    # for G, g_list, t_set in batch_load_file_to_graph(1, 5, num_of_nodes_per_g=[300]):
+    # n, m = broadcast(G, {}, t_set)
+    # print(n, m)
 
-        t_nodes_list = [i for i in range(10)]
-        t_nodes_list.extend([i for i in range(30, 271, 30)])
-        simulate_prob(Algorithm.UNIFORM_CHOOSE_PROB_1, 10)
-        simulate_prob(Algorithm.UNIFORM_CHOOSE_PROB_2, 10)
-        simulate_prob(Algorithm.WEIGHTED_EDGES_PROB, 10)
+    for G, g_list, t_set in batch_load_file_to_graph(0, 5, num_of_nodes_per_g=[300]):
+        print("*** a graph sim has started 0123 ***")
+
+        t_nodes_list = [i for i in range(25)]
+        t_nodes_list.extend([i for i in range(25, 276, 25)])
+
+        # if algo 0 - 3:
+        simulate_rank(Algorithm.DEGREE_CENTRALITY)
+        simulate_rank(Algorithm.EIGEN_CENTRALITY)
+        simulate_rank(Algorithm.CLOSENESS_CENTRALITY)
+        simulate_rank(Algorithm.BETWEENNESS_CENTRALITY)
+
+        # if algo 4 - 6:
+        # num_of_sim_per_graph = 10
+        # simulate_prob(Algorithm.UNIFORM_CHOOSE_PROB_1, num_of_sim_per_graph)
+        # simulate_prob(Algorithm.UNIFORM_CHOOSE_PROB_2, num_of_sim_per_graph)
+        # simulate_prob(Algorithm.WEIGHTED_EDGES_PROB, num_of_sim_per_graph)
 
     # iterate the default dict to generate a normal dict for serializing
     outside_dict = dict()
@@ -258,11 +281,19 @@ def simulation_batch():
 
 if __name__ == '__main__':
     pass
-    # result_dict = simulation_batch()
-    # with open("result_dict_456.pickle", "wb") as output_file:
-    #     dump(result_dict, output_file)
+    # what to config:
+    # 1) batch_load_file_to_graph(num of G wanted (0=all), num of subgraphs / G, other params see doc str above)
+    # 2) t_nodes_list
+    # 3.1) if simulate_rank(), you are good to go
+    # 3.2) if simulate_prob(), i.e. algo 4, 5, and 6: num_of_sim_per_graph
+    # 4) file name below
+    print("simulation started")
+    result_dict = simulation_batch()
+    with open("result_dict_300x5_0123.pickle", "wb") as output_file:
+        dump(result_dict, output_file)
+    print("simulation finished")
 
-    # with open("result_dict_456.pickle", "rb") as input_file:
+    # with open("result_dict_300x5_456.pickle", "rb") as input_file:
     #     result_dict = load(input_file)
     #     for k, v in result_dict.items():
     #         print(k)
