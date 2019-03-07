@@ -1,10 +1,6 @@
-from enum import Enum
 import pickle
 import networkx as nx
-import math
-from broadcasting import broadcast
-import matplotlib.pyplot as plt
-from collections import defaultdict, OrderedDict
+from collections import defaultdict, OrderedDict, deque
 from operator import itemgetter
 import os
 from random import shuffle
@@ -14,16 +10,84 @@ from itertools import combinations
 MAX_NUMBER_OF_FAULT_NODES = 3
 NUMBER_OF_NODES_GO_TO_NEXT_SRC = 2 * MAX_NUMBER_OF_FAULT_NODES + 1
 rootdir = os.path.join(os.getcwd(), 'subgraphs')
+print(rootdir)
+
+
+# 1. Closseness 2. Betweeness, 3 Edges
+def remove_greedy(G, t_node_set, t_node_num_list, alg_num, common_threshold = 3):
+    result_dict = dict()
+    for num_trusted in t_node_num_list:
+        trusted_nodes = pick_trusted_centrality(G, num_trusted, t_node_set, common_threshold, alg_num)
+        result_dict[num_trusted] = trusted_nodes
+        result_dict[num_trusted].update(t_node_set.copy())
+    return result_dict
+
+
+def pick_trusted_centrality(G, num_trusted, t_node_set, overlap, alg_num):
+    if alg_num == 1:
+        centrality_dict = nx.closeness_centrality(G)
+    elif alg_num == 2:
+        centrality_dict = nx.betweenness_centrality(G)
+    elif alg_num == 3:
+        centrality_dict = nx.degree_centrality(G)
+
+    centrality_dict = remove_src(centrality_dict, t_node_set)
+
+    centrality_dict = order_dict(centrality_dict)
+    return_trusted_nodes = get_trusted(G, centrality_dict, num_trusted, overlap)
+
+    return return_trusted_nodes
+
+
+# Remove the src from being a candidate for trusted node
+def remove_src(centrality_dict, t_node_set):
+    for src_id in t_node_set:
+        del centrality_dict[src_id]
+    return centrality_dict
+
+
+def get_trusted(G, centrality_dict: dict, num_trusted: int, overlap: int):
+    return_trusted_nodes = set()
+
+    while num_trusted > 0:
+        copy_dict = order_dict(dict(centrality_dict))
+
+        centrality_dict = dict()
+
+        for id in copy_dict.keys():
+            # Check if this id can be picked as trusted based on threshold
+            if checkTrusted(G, id, return_trusted_nodes, overlap):
+                return_trusted_nodes.add(id)
+                num_trusted -= 1
+                if num_trusted == 0:
+                    return return_trusted_nodes
+
+        for node, value in copy_dict.items():
+            if node not in return_trusted_nodes:
+                centrality_dict[node] = value
+        overlap = overlap * 2
+
+    return return_trusted_nodes
+
+
+# Check if the current node has overlap more than the threshold
+def checkTrusted(G, id, return_trusted_nodes, overlap):
+    for trusted_id in return_trusted_nodes:
+        common_neis = len(list(nx.common_neighbors(G, id, trusted_id)))
+        if common_neis > overlap:
+            return False
+    return True
+
+
+def order_dict(centrality_dict):
+    centrality_dict = OrderedDict(sorted(centrality_dict.items(), key=itemgetter(1), reverse=True))
+    return centrality_dict
+
 
 def load_file_to_greedy_graph(file_list):
     current_src_id = 0
     sub_graph_list = []
     sub_graph_src_id = []
-
-    threshold_parameters = []
-    for file in file_list:
-        threshold = get_random_radius_threshold(file)
-        threshold_parameters.append(threshold)
 
     links = []
 
@@ -50,7 +114,7 @@ def load_file_to_greedy_graph(file_list):
 
         current_src_id = len(total_graph.nodes)
 
-    return total_graph, sub_graph_list, set(sub_graph_src_id), threshold_parameters
+    return total_graph, sub_graph_list, set(sub_graph_src_id)
 
 
 # Generate the links to the next graph src
@@ -90,166 +154,6 @@ def concat_two_graph(current_src_id, current_sub_graph_file_name, manual_link=No
 # Compose the Two graphs together but are now disconnected component
 def compose(src_graph, sub_graph):
     return nx.compose(src_graph, sub_graph)
-
-
-# Get the Threshold of the geometric graph from file Name
-def get_random_radius_threshold(file_name):
-    count = 0
-    start_idx = 0
-    end_idx = 0
-
-    for i in range (len(file_name)):
-        if file_name[i] == '_':
-            count += 1
-            if count == 4:
-                start_idx = i + 1
-            elif count == 5:
-                end_idx = i
-                return float(file_name[start_idx : end_idx])
-    return 0.0
-
-
-def remove_greedy_subview_uniform(G, graph_list, t_node_set, t_node_num_list, threshold_parameter):
-    return
-
-
-def remove_greedy_subview_ratio(G, graph_list, t_node_set, t_node_num_list, threshold_parameters):
-    return
-
-# key: #trusted
-# value: list of picked id nodes
-
-
-def remove_greedy_globalview(G, t_node_set, t_node_num_list, threshold_parameters):
-    result_dict = dict()
-
-    threshold_to_remove = 0
-
-    for para in threshold_parameters:
-        threshold_to_remove += para
-
-    threshold_to_remove = (threshold_to_remove / 2) / (len(threshold_parameters))
-
-    for num_trusted in t_node_num_list:
-        trusted_nodes = pick_trusted_centrality_closseness(G, num_trusted, t_node_set, threshold_to_remove)
-        result_dict[num_trusted] = trusted_nodes
-        result_dict[num_trusted].update(t_node_set.copy())
-    return result_dict
-
-
-def pick_trusted_centrality_closseness(G, num_trusted, t_node_set, threshold_to_remove):
-    centrality_dict = nx.closeness_centrality(G)
-
-    centrality_dict = remove_src(centrality_dict, t_node_set)
-
-    centrality_dict = order_dict(centrality_dict)
-
-    # This can be reused once we removing all the neighors in the first round
-    throw_away_dict = dict()
-
-    return_trusted_nodes_list = []
-    while num_trusted > 0:
-        num_trusted = remove_trusted(G, centrality_dict, throw_away_dict, num_trusted, threshold_to_remove, return_trusted_nodes_list)
-        centrality_dict = order_dict(throw_away_dict)
-        throw_away_dict = dict()
-
-    return set(return_trusted_nodes_list)
-
-
-# Remove the src from being a candidate for trusted node
-def remove_src(centrality_dict, t_node_set):
-    for src_id in t_node_set:
-        del centrality_dict[src_id]
-    return centrality_dict
-
-
-def remove_trusted(G, centrality_dict, throw_away_dict, number_of_added, threshold_to_remove, return_trusted_nodes_list):
-    for id in centrality_dict.keys():
-        if number_of_added <= 0 or len(centrality_dict) <= 0:
-            break
-        if id in throw_away_dict:
-            continue
-        remove_trusted_helper(G, id, threshold_to_remove, centrality_dict, throw_away_dict)
-        return_trusted_nodes_list.append(id)
-        number_of_added -= 1
-    return number_of_added
-
-
-def calculate_distance(G, src_id, dst_id):
-    src_x, src_y = G.node[src_id]['pos']
-    des_x, des_y = G.node[dst_id]['pos']
-    distance = math.sqrt(math.pow(src_x - des_x, 2) + math.pow(src_y - des_y, 2))
-    return distance
-
-
-# Remove the potential trusted given current node id
-def remove_trusted_helper(G, id, threshold_to_remove, centrality_dict, throw_away_dict):
-    edges = nx.edges(G, id)
-    delete_ids = []
-    for t in edges:
-        nei = t[1]
-        path_length = calculate_distance(G, id, nei)
-        # Remove the nodes to be potential trusted nodes
-        if path_length < threshold_to_remove:
-            # if id == 141:
-            #     print(nei, path_length)
-            if nei in centrality_dict.keys():
-                delete_ids.append(nei)
-
-    copy_dict = dict(centrality_dict)
-    centrality_dict = dict()
-    delete_ids = set(delete_ids)
-
-    for id, value in copy_dict.items():
-        if id in delete_ids:
-            throw_away_dict[id] = value
-        else:
-            centrality_dict[id] = value
-
-    centrality_dict = order_dict(centrality_dict)
-    throw_away_dict = order_dict(throw_away_dict)
-
-
-def order_dict(centrality_dict):
-    centrality_dict = OrderedDict(sorted(centrality_dict.items(), key=itemgetter(1), reverse=True))
-    return centrality_dict
-
-
-def load_file_to_greedy_graph(file_list):
-    current_src_id = 0
-    sub_graph_list = []
-    sub_graph_src_id = []
-    threshold_list = []
-
-    links = []
-
-    total_graph = None
-
-    for i, file in enumerate(file_list):
-        # Now we are going to concat graph from a file
-
-        # record the src id
-        sub_graph_src_id.append(current_src_id)
-
-        threshold = get_random_radius_threshold(file)
-        threshold_list.append(threshold)
-
-        # Now start building the graph
-        if i == 0:
-            total_graph, append_sub_graph = concat_two_graph(current_src_id, file)
-
-        # Other general Cases
-        else:
-            total_graph, append_sub_graph = concat_two_graph(current_src_id, file, links, total_graph)
-
-        # Append the subgraph to our list
-        sub_graph_list.append(append_sub_graph)
-
-        links = random_generate_link(current_src_id, len(total_graph.nodes))
-
-        current_src_id = len(total_graph.nodes)
-
-    return total_graph, sub_graph_list, set(sub_graph_src_id), threshold_list
 
 
 def batch_load_file_to_graph(num_of_G, num_of_g_per_G,
@@ -302,13 +206,12 @@ def batch_load_file_to_graph(num_of_G, num_of_g_per_G,
 def simulation_batch():
     # {key: num of trusted; value: {key: algo enum; value: num of rounds}}
     result_dict = defaultdict(lambda: defaultdict(lambda: []))
-
-    for G, g_list, t_set, threshold_list in batch_load_file_to_graph(0, 1, num_of_nodes_per_g=[300]):
+    for G, g_list, t_set in batch_load_file_to_graph(0, 1, num_of_nodes_per_g=[300]):
         print("*** a graph sim has started ***")
         t_nodes_list = [i for i in range(10)]
         t_nodes_list.extend([i for i in range(30, 271, 30)])
 
-        params_dict = remove_greedy_globalview(G, t_set, t_nodes_list, threshold_list)
+        params_dict = remove_greedy(G, t_set, t_nodes_list, 1)
 
         for num_of_t_nodes, t_nodes_set in params_dict.items():
             num_of_commits, num_of_rounds = broadcast(G, faulty_nodes=set(), trusted_nodes = t_nodes_set)
@@ -323,11 +226,70 @@ def simulation_batch():
         outside_dict[k] = inside_dict
     return outside_dict
 
+def broadcast(graph, faulty_nodes=set(), trusted_nodes=set()):
+    """
+    Given a potentially desired graph and a set of faulty nodes,
+    do a broadcasting to see whether all non-faulty nodes are able to receive the source's commit
+    :param graph: a graph generated by propose_graph()
+    :param faulty_nodes: a set of faulty nodes picked by doing combination
+    :param trusted_nodes:
+    :return: the number of non-faulty nodes that have committed the message, including the source
+    """
+
+    # Round 0: initialize and the source commits
+    curr_round = 0
+    # every non-faulty node (except the src) appears in non_faulty_commit_queue only once,
+    # but all faulty nodes will not be in this queue
+    non_faulty_commit_queue = deque()
+    non_faulty_commit_queue.append(0)
+
+    # to record whether a node has committed the value before (due to cyclic graph),
+    # we put the node to the set if it is the source, or
+    # it receives a commit from the source/trusted node, or
+    # it receives (MAX_FAULT_NODES + 1) commits from incoming nodes (faulty nodes don't commit)
+    non_faulty_has_committed = {0}
+
+    # to record the number of proposes a node receives if it's not directly linked to the source
+    propose_received = defaultdict(lambda: 0)
+
+    # Round >= 1: all non-faulty nodes commits
+    while len(non_faulty_commit_queue):  # while not all nodes have committed
+        curr_round += 1
+        for curr_node in range(len(non_faulty_commit_queue)):  # for all nodes in the current round of commits
+            curr_node = non_faulty_commit_queue.popleft()
+            curr_node_neis = [edge[1] for edge in graph.edges(curr_node)]  # all outgoing neighbours of the current node
+
+            if curr_node in trusted_nodes:  # if this commit comes from the source or trusted nodes
+                for nei in curr_node_neis:
+                    # If this node has committed before (due to cyclic graph) OR if this node is faulty, ignore it;
+                    if nei in non_faulty_has_committed or nei in faulty_nodes:
+                        continue
+
+                    non_faulty_commit_queue.append(nei)
+                    non_faulty_has_committed.add(nei)
+            else:
+                for nei in curr_node_neis:
+                    # If this node has committed before (due to cyclic graph) OR if this node is faulty, ignore it;
+                    if nei in non_faulty_has_committed or nei in faulty_nodes:
+                        continue
+
+                    # If this node is non-faulty, it commits iff it has heard (MAX_FAULT_NODES + 1) non-faulty proposes.
+                    # note: faulty nodes don't propose values
+                    # TODO: does MAX_FAULTY_NODES logic goes well with giant graph? yes?
+                    propose_received[nei] += 1
+                    if propose_received[nei] >= MAX_NUMBER_OF_FAULT_NODES + 1:
+                        non_faulty_commit_queue.append(nei)
+                        non_faulty_has_committed.add(nei)
+    return len(non_faulty_has_committed), curr_round
+
 
 if __name__ == '__main__':
     pass
-    result_dict = simulation_batch()
-    pickle.dump(result_dict, open("remove_greedy_geo_1.p", "wb"))
+
+    G = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/subgraphs/geo_300/geo_300_0.15_1", "rb"))
+    pick_trusted_centrality(G, 10, [0], 3, 1)
+    # result_dict = simulation_batch()
+    # pickle.dump(result_dict, open("remove_greedy_geo_1.p", "wb"))
 
     # pickle.dump(open("remove_greedy_geo_1.p", "rb"))
     # print(result_dict)

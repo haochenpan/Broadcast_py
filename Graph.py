@@ -51,8 +51,14 @@ def alg_compare_graph(result_dict):
                 plt.plot(list(range(len(rounds_list))), rounds_list, 'm', label='UNIFORM_SUB')
             elif alg_label == 6:
                 plt.plot(list(range(len(rounds_list))), rounds_list, 'k', label='WEIGHTED_EDGEs')
-            elif alg_label == 'remove_greedy_globalView':
-                plt.plot(list(range(len(rounds_list))), rounds_list,  'tab:purple', label='remove_neis')
+            elif alg_label == 7:
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'tab:purple', label='remove_neis')
+            elif alg_label == 8:
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'tab:purple', label='remove_c_clo')
+            elif alg_label == 9:
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'tab:purple', label='remove_c_bet')
+            elif alg_label == 10:
+                plt.plot(list(range(len(rounds_list))), rounds_list, 'tab:purple', label='remove_c_Edg')
 
         plt.xticks(np.arange(0, len(rounds_list), 1.0))
         plt.legend(loc='best')
@@ -95,10 +101,10 @@ def line_graph(result_dict, graph_num):
         elif alg_label == 1:
             plt.plot(x_axis, rounds_list, 'b', label='EIGEN_CENTRALITY')
 
-        elif alg_label == 2:
+        if alg_label == 2:
             plt.plot(x_axis, rounds_list, 'g', label='CLOSENESS_CENTRALITY')
 
-        elif alg_label == 3:
+        if alg_label == 3:
             plt.plot(x_axis, rounds_list, 'y', label='BETWEENNESS_CENTRALITY')
 
         elif alg_label == 4:
@@ -111,7 +117,13 @@ def line_graph(result_dict, graph_num):
             plt.plot(x_axis, rounds_list, 'k', label='WEIGHTED_EDGEs')
 
         elif alg_label == 7:
-            plt.plot(x_axis, rounds_list, 'tab:purple', label='remove_neis')
+            plt.plot(x_axis, rounds_list, 'tab:pink', label='remove_c_clo')
+
+        elif alg_label == 8:
+            plt.plot(x_axis, rounds_list, 'tab:orange', label='remove_c_bet')
+
+        elif alg_label == 9:
+            plt.plot(x_axis, rounds_list, 'tab:gray', label='remove_c_Degree')
 
     plt.legend(loc='best')
     plt.xlabel("Number of trusted")
@@ -155,10 +167,10 @@ def line_graph_head(result_dict, graph_num, top_k_trusted):
         elif alg_label == 1:
             plt.plot(x_axis, rounds_list, 'b', label='EIGEN_CENTRALITY')
 
-        elif alg_label == 2:
-            plt.plot(x_axis, rounds_list, 'g', label='CLOSENESS_CENTRALITY')
+        if alg_label == 2:
+             plt.plot(x_axis, rounds_list, 'g', label='CLOSENESS_CENTRALITY')
 
-        elif alg_label == 3:
+        if alg_label == 3:
             plt.plot(x_axis, rounds_list, 'y', label='BETWEENNESS_CENTRALITY')
 
         elif alg_label == 4:
@@ -171,7 +183,14 @@ def line_graph_head(result_dict, graph_num, top_k_trusted):
             plt.plot(x_axis, rounds_list, 'k', label='WEIGHTED_EDGEs')
 
         elif alg_label == 7:
-            plt.plot(x_axis, rounds_list, 'tab:purple', label='REMOVE_NEIS')
+            plt.plot(x_axis, rounds_list, 'tab:pink', label='remove_c_clo')
+
+        elif alg_label == 8:
+            plt.plot(x_axis, rounds_list, 'tab:orange', label='remove_c_bet')
+
+        elif alg_label == 9:
+            plt.plot(x_axis, rounds_list, 'tab:gray', label='remove_c_Degree')
+
 
     plt.legend(loc='best')
     plt.xticks(np.arange(0, 10, 1.0))
@@ -215,18 +234,38 @@ def bar_graph(graph_id, result_dict):
 if __name__ == '__main__':
     result_dict = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/result_dict_0123.pickle", "rb"))
     result_dict_456 = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/result_dict_456.pickle", "rb"))
-    result_dict_remove = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/remove_greedy_geo_1.p", "rb"))
+    # result_dict_remove = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/remove_greedy_geo_1.p", "rb"))
+    result_dict_common_close = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/remove_greedy_geo_2.p", "rb"))
+    result_dict_common_betweeness = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/remove_greedy_geo_3.p", "rb"))
+    result_dict_common_edges = pickle.load(open("/Users/yingjianwu/Desktop/broadcast/Broadcast_py/remove_greedy_geo_4.p", "rb"))
 
     for k, v in result_dict_456.items():
         small_dict_in_result_dict = result_dict[k]
         for a, b in v.items():
             small_dict_in_result_dict[a] = b
 
-    for k, v in result_dict_remove.items():
+    # for k, v in result_dict_remove.items():
+    #     small_dict_in_result_dict = result_dict[k]
+    #     for a, b in v.items():
+    #         small_dict_in_result_dict[a] = b
+
+    for k, v in result_dict_common_close.items():
         small_dict_in_result_dict = result_dict[k]
         for a, b in v.items():
             small_dict_in_result_dict[a] = b
 
-    graph_id = 4
-    bar_graph(graph_id, result_dict)
+    for k, v in result_dict_common_betweeness.items():
+        small_dict_in_result_dict = result_dict[k]
+        for a, b in v.items():
+            small_dict_in_result_dict[a] = b
+
+    for k, v in result_dict_common_edges.items():
+        small_dict_in_result_dict = result_dict[k]
+        for a, b in v.items():
+            small_dict_in_result_dict[a] = b
+
+    graph_id = 9
+    line_graph(result_dict, graph_id)
+    line_graph_head(result_dict, graph_id, 10)
+    # bar_graph(graph_id, result_dict)
 
