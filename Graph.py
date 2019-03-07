@@ -221,7 +221,7 @@ def bar_graph(graph_id, result_dict):
         plt.yticks(np.arange(bottom , top, step = 1))
         plt.ylim(bottom,top)
         plt.bar(x_axis, y_local_list)
-        plt.title(f"Sparse: Number of trusted {num_trusted} in graph_id {graph_id}")
+        plt.title(f"Medium: Number of trusted {num_trusted} in graph_id {graph_id}")
         # plt.show()
         plt.savefig(f"{num_trusted}_Bar")
         plt.clf()
@@ -264,7 +264,7 @@ if __name__ == '__main__':
         for a, b in v.items():
             small_dict_in_result_dict[a] = b
 
-    graph_id = 9
+    graph_id = 18
     line_graph(result_dict, graph_id)
     line_graph_head(result_dict, graph_id, 10)
     # bar_graph(graph_id, result_dict)
