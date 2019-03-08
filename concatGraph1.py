@@ -185,7 +185,7 @@ def main():
         G, glist, src_ids = load_file_to_greedy_graph(file_list)
         for g in glist:
             print(nx.number_of_edges(g))
-        pickle.dump(G, open(f"Big_Graph_{count}", "wb"))
+        # pickle.dump(G, open(f"Big_Graph_{count}", "wb"))
         count += 1
 
 
