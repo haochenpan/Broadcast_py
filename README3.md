@@ -1,186 +1,77 @@
-# 1500Nodes Big Graph:
-## Graph0 (Random_Graph_1_V1):
-#### Total Graph Information:
-Nodes number = 1500
+# Three Density levels of Graph (Geometric Graph):
+# Bar graphs are included in the folders but now shown in readMe
 
-Total Edges = 21556
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-2687	0.15
+## Dense:
 
-2687	0.15
-
-7019	0.25
-
-4441	0.2
-
-4722	0.2
+### graph1(id7)
 
 #### overall
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph0/Big_Graph_ID0_Overall.png)
-#### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph0/Big_Graph_ID0_TOP50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Dense/graph_id7/overall.png)
+#### Top 10 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Dense/graph_id7/first10.png)
 
-## Graph1 (Random_Graph_2_V1):
-#### Total Graph Information: 
-Nodes number = 1500
-
-Total Edges = 21813
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-2826	0.15
-
-4722	0.2
-
-2669	0.15
-
-7038	0.25
-
-4558	0.2
+### graph2(id8)
 
 #### overall
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph1/Big_Graph_ID1_Overall.png)
-#### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph1/Big_Graph_ID1_TOP50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Dense/graph_id8/overall.png)
+#### Top 10 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Dense/graph_id8/first10.png)
 
-## Graph2 (Random_Graph_3_V1):
-#### Total Graph Information: 
-Nodes number = 1500
-
-Total Edges = 21858
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-2840	0.15
-
-7019	0.25
-
-4633	0.2
-
-4679	0.2
-
-2687	0.15
+### graph3(id9)
 
 #### overall
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph2/Big_Graph_ID2_Overall.png)
-#### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph2/Big_Graph_ID2_TOP50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Dense/graph_id9/overall.png)
+#### Top 10 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Dense/graph_id9/first10.png)
 
-## Graph3 (All sparse_V1):
-#### Total Graph Information: 
-Nodes number = 1500
+## Medium:
 
-Total Edges = 13777
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-all 0.15
-
-2840
-
-2752
-
-2687
-
-2672
-
-2826
+### graph1(id16)
 
 #### overall
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph3/ID3_Overall.png)
-#### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph3/ID3_Top50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Medium/graph_id16/overall.png)
+#### Top 10 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Medium/graph_id16/first10.png)
 
-## Graph4 (All Medium_V1):
-#### Total Graph Information: 
-Nodes number = 1500
-
-Total Edges = 23409
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-all 0.2
-
-4679
-
-4633
-
-4702
-
-4779
-
-4616
+### graph2(id18)
 
 #### overall
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph4/Big_Graph_ID4_Overall.png)
-#### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph4/Big_Graph_ID4_Top50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Medium/graph_id18/overall.png)
+#### Top 10 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Medium/graph_id18/first10.png)
 
-## Graph5 (Random_Graph_1_V2)::
-#### Total Graph Information: 
-Nodes number = 1500
-
-Total Edges = 21724
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-Have the same Attributes as Graph 0
+### graph3(id20)
 
 #### overall
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph5/Big_Graph_ID5_Overall.png)
-#### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph5/Big_Graph_ID5_TOP50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Medium/graph_id20/firstTen.png)
+#### Top 10 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Medium/graph_id20/Overall.png)
 
-## Graph6 (Random_Graph_2_V2):
-#### Total Graph Information: 
-Nodes number = 1500
 
-Total Edges = 21981
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-Have the same Attributes as Graph 1
+## Sparse:
+
+### graph1(id2)
 
 #### overall
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph6/Big_Graph_ID6_Overall.png)
-#### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph6/Big_Graph_ID6_TOP50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Sparse/graph_id2/overall.png)
+#### Top 10 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Sparse/graph_id2/first10.png)
 
-## Graph7 (Random_Graph_3_V2):
-#### Total Graph Information: 
-Nodes number = 1500
+### graph2(id3)
 
-Total Edges = 22026
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-Have the same Attributes as Graph 2
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Sparse/graph_id3/overall.png)
+#### Top 10 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Sparse/graph_id3/first10.png)
 
-## Graph8 Graph3 (All sparse_V2)::
-#### Total Graph Information: 
-Node number = 1500
+### graph3(id4)
 
-Total Edges = 13777
-#### Sub Graph attributes: 
-Have the same Attributes as Graph 3
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Sparse/graph_id4/overall.png)
+#### Top 10 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Sparse/graph_id4/first10.png)
 
 
-## Graph9(All Medium_V2):
-#### Total Graph Information: 
-Nodes number = 1500
 
-Total Edges = 23557
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-Have the same Attributes as Graph 4
 
-## Graph10 (ALL Dense_V1):
-#### Total Graph Information: 
-Nodes number = 1500
 
-Total Edges = 35152
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-all 0.25
-
-7038
-
-7038
-
-7019
-
-7038
-
-7019
-
-## Graph11 (ALL Dense_V2):
-#### Total Graph Information: 
-Nodes number = 1500
-
-Total Edges = 35320
-#### Sub Graph attributes [Edge number, Geometric_Threshold]: 
-Have same attributes as Graph 10
