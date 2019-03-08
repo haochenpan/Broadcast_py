@@ -3,7 +3,7 @@
 #### Total Graph Information:
 Nodes number = 1500
 
-Total Edges = 21556
+Total Edges = 21591
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 2687	0.15
 
@@ -24,7 +24,7 @@ Total Edges = 21556
 #### Total Graph Information: 
 Nodes number = 1500
 
-Total Edges = 21813
+Total Edges = 21848
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 2826	0.15
 
@@ -45,7 +45,7 @@ Total Edges = 21813
 #### Total Graph Information: 
 Nodes number = 1500
 
-Total Edges = 21858
+Total Edges = 21893
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 2840	0.15
 
@@ -66,7 +66,7 @@ Total Edges = 21858
 #### Total Graph Information: 
 Nodes number = 1500
 
-Total Edges = 13777
+Total Edges = 13812
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 all 0.15
 
@@ -89,7 +89,7 @@ all 0.15
 #### Total Graph Information: 
 Nodes number = 1500
 
-Total Edges = 23409
+Total Edges = 23444
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 all 0.2
 
@@ -112,7 +112,7 @@ all 0.2
 #### Total Graph Information: 
 Nodes number = 1500
 
-Total Edges = 21724
+Total Edges = 21759
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 Have the same Attributes as Graph 0
 
@@ -125,7 +125,7 @@ Have the same Attributes as Graph 0
 #### Total Graph Information: 
 Nodes number = 1500
 
-Total Edges = 21981
+Total Edges = 22016
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 Have the same Attributes as Graph 1
 
@@ -138,7 +138,7 @@ Have the same Attributes as Graph 1
 #### Total Graph Information: 
 Nodes number = 1500
 
-Total Edges = 22026
+Total Edges = 22061
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 Have the same Attributes as Graph 2
 
@@ -146,7 +146,7 @@ Have the same Attributes as Graph 2
 #### Total Graph Information: 
 Node number = 1500
 
-Total Edges = 13777
+Total Edges = 13980
 #### Sub Graph attributes: 
 Have the same Attributes as Graph 3
 
@@ -155,7 +155,7 @@ Have the same Attributes as Graph 3
 #### Total Graph Information: 
 Nodes number = 1500
 
-Total Edges = 23557
+Total Edges = 23592
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 Have the same Attributes as Graph 4
 
@@ -163,7 +163,7 @@ Have the same Attributes as Graph 4
 #### Total Graph Information: 
 Nodes number = 1500
 
-Total Edges = 35152
+Total Edges = 35187
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 all 0.25
 
@@ -181,6 +181,6 @@ all 0.25
 #### Total Graph Information: 
 Nodes number = 1500
 
-Total Edges = 35320
+Total Edges = 35355
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 Have same attributes as Graph 10
