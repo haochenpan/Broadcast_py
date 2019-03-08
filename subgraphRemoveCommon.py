@@ -65,7 +65,7 @@ def get_trusted(G, centrality_dict: dict, num_trusted: int, overlap: int):
         for node, value in copy_dict.items():
             if node not in return_trusted_nodes:
                 centrality_dict[node] = value
-        overlap = overlap * 2
+        overlap = overlap + 1
 
     return return_trusted_nodes
 
