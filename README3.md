@@ -15,6 +15,11 @@ Total Edges = 21556
 
 4722	0.2
 
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph0/Big_Graph_ID0_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph0/Big_Graph_ID0_TOP50.png)
+
 ## Graph1 (Random_Graph_2_V1):
 #### Total Graph Information: 
 Nodes number = 1500
@@ -31,6 +36,11 @@ Total Edges = 21813
 
 4558	0.2
 
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph1/Big_Graph_ID1_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph1/Big_Graph_ID1_TOP50.png)
+
 ## Graph2 (Random_Graph_3_V1):
 #### Total Graph Information: 
 Nodes number = 1500
@@ -46,6 +56,11 @@ Total Edges = 21858
 4679	0.2
 
 2687	0.15
+
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph2/Big_Graph_ID2_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph2/Big_Graph_ID2_TOP50.png)
 
 ## Graph3 (All sparse_V1):
 #### Total Graph Information: 
@@ -65,6 +80,10 @@ all 0.15
 
 2826
 
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph3/ID3_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph3/ID3_Top50.png)
 
 ## Graph4 (All Medium_V1):
 #### Total Graph Information: 
@@ -84,6 +103,10 @@ all 0.2
 
 4616
 
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph4/Big_Graph_ID4_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph4/Big_Graph_ID4_Top50.png)
 
 ## Graph5 (Random_Graph_1_V2)::
 #### Total Graph Information: 
@@ -93,6 +116,11 @@ Total Edges = 21724
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 Have the same Attributes as Graph 0
 
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph5/Big_Graph_ID5_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph5/Big_Graph_ID5_TOP50.png)
+
 ## Graph6 (Random_Graph_2_V2):
 #### Total Graph Information: 
 Nodes number = 1500
@@ -100,6 +128,11 @@ Nodes number = 1500
 Total Edges = 21981
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 Have the same Attributes as Graph 1
+
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph6/Big_Graph_ID6_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph6/Big_Graph_ID6_TOP50.png)
 
 ## Graph7 (Random_Graph_3_V2):
 #### Total Graph Information: 
