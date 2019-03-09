@@ -18,19 +18,29 @@ Total Edges = 21696
 #### overall
 ![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph0/Big_Graph_ID0_Overall.png)
 Closeness 12
+
 Betweeness 36
+
 Degree 6
+
 Closeness + Remove 12
+
 Betweeness + Remove 13
+
 Degree + Remove 7
 
 #### Top 50 trusted
 ![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph0/Big_Graph_ID0_TOP50.png)
 Closeness 4
+
 Betweeness 12
+
 Degree 3
+
 Closeness + Remove 9
+
 Betweeness + Remove 11
+
 Degree + Remove 2
 
 ## Graph1 (Random_Graph_2_V1):
