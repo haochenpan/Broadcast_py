@@ -141,6 +141,10 @@ Nodes number = 1500
 Total Edges = 22166
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 Have the same Attributes as Graph 2
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph7/Big_Graph_ID7_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph7/Big_Graph_ID7_TOP50.png)
 
 ## Graph8 Graph3 (All sparse_V2)::
 #### Total Graph Information: 
@@ -149,7 +153,10 @@ Node number = 1500
 Total Edges = 14085
 #### Sub Graph attributes: 
 Have the same Attributes as Graph 3
-
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph8/Big_Graph_ID8_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph8/Big_Graph_ID8_TOP50.png)
 
 ## Graph9(All Medium_V2):
 #### Total Graph Information: 
@@ -158,6 +165,10 @@ Nodes number = 1500
 Total Edges = 23717
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 Have the same Attributes as Graph 4
+#### overall
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph9/Big_Graph_ID9_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph9/Big_Graph_ID9_TOP50.png)
 
 ## Graph10 (ALL Dense_V1):
 #### Total Graph Information: 
@@ -176,6 +187,9 @@ all 0.25
 7038
 
 7019
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph10/Big_Graph_ID10_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph10/Graph_ID10_Top50.png)
 
 ## Graph11 (ALL Dense_V2):
 #### Total Graph Information: 
@@ -184,3 +198,6 @@ Nodes number = 1500
 Total Edges = 35460
 #### Sub Graph attributes [Edge number, Geometric_Threshold]: 
 Have same attributes as Graph 10
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph11/Big_Graph_ID11_Overall.png)
+#### Top 50 trusted
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph11/Big_Graph_ID11_Top50.png)
