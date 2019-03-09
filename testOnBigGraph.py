@@ -237,15 +237,127 @@ def simulation_good_nodes_picked():
             print("Alg_num", alg_num)
             current_trusted = pick_trusted_centrality(G, num_trusted, t_node_set, alg_num, 3)
             current_trusted.extend(t_node_set.copy())
-            good_nodes_dict[alg_num]
+            good_nodes_dict[graph_index][alg_num] = current_trusted
             alg_num += 1
 
     pickle.dump(good_nodes_dict, open(f"Big_Graph_trusted.p", "wb"))
     return result_dict
 
 
+def simulation_good_nodes_picked_TOP50():
+    result_dict = pickle.load(open("Big_Graph_trusted.p", "rb"))
+    for graph_index, small_dict in result_dict.items():
+        for alg_num, list in small_dict.items():
+            result_dict[graph_index][alg_num] = list[0:50]
+
+    pickle.dump(result_dict, open(f"Big_Graph_trusted_Top50.p", "wb"))
+
+
+def simulation_load_TOP50():
+    result_dict = pickle.load(open("Big_Graph_trusted_TOP50.p", "rb"))
+    # for graph_index, small_dict in result_dict.items():
+    #     print('Graph_Index', graph_index)
+    #     for alg_num, lst in small_dict.items():
+    #         print(alg_num, lst)
+    return result_dict
+
+
+def simulation_load_Overall():
+    result_dict = pickle.load(open("Big_Graph_trusted.p", "rb"))
+    return result_dict
+
+
+def write_to_txt(file_Name):
+    G = pickle.load(open(file_Name, "rb"))
+
+    file = open(file_Name+"txt","w")
+
+    for i in range(1500):
+        edge = nx.edges(G, i)
+        edge = list(edge)
+        file.write(str(i) + "\n")
+        for item in edge:
+            file.write("%s\n" % str(item))
+    file.close()
+
+
+# def checkGoodNodeInfo():
+#     result_dict = pickle.load(open("Big_Graph_trusted.p", "rb"))
+#     for graph_id, small_dict in result_dict.items():
+#         # print("Graph_ID", graph_id)
+#         for alg_num, trusted in small_dict.items():
+#             # print (alg_num, trusted)
+
+
+def checklinks():
+    # Put all those tested graph into the list
+    tested_graphs_name = []
+    result_dict = dict()
+    for i in range(12):
+        result_dict[i] = set()
+
+    for j in range(12):
+        tested_graphs_name.append("Big_Graph_" + str(j))
+        G = loadGraph(tested_graphs_name[j])
+        for i in range(1500):
+            edges = nx.edges(G, i)
+            for t in edges:
+                nei = t[1]
+                if (t[1] - i >= 300):
+                    result_dict[j].add(i)
+
+    return result_dict
+
+
+def check_overlap():
+    # key: graph_id
+    # value: small dict:
+            #key: alg_num
+            #value: top60 trusted nodes
+    # result_dict = simulation_good_nodes_picked()
+    result_dict = simulation_load_TOP50()
+    # key: graph_id
+    # value: set src_links
+    link_dict = checklinks()
+
+    count_dict = dict()
+    for i in range(12):
+        count_dict[i] = dict()
+
+
+    for graph_id, small_dict in result_dict.items():
+        for alg_num, trusted in small_dict.items():
+            count = 0
+            print(trusted)
+            for nodes in trusted:
+                if nodes in link_dict[graph_id]:
+                    count += 1
+            count_dict[graph_id][alg_num] = count
+
+    return count_dict
+
+
 def main():
-    simulation_good_nodes_picked()
+    count_dict = check_overlap()
+    for graph_id, small_dict in count_dict.items():
+        print("Graph_Number", graph_id)
+        for alg_num, count in small_dict.items():
+            if alg_num == 1:
+                alg_name = "Closeness"
+            elif alg_num == 2:
+                alg_name = "Betweeness"
+            elif alg_num == 3:
+                alg_name = "Degree"
+            elif alg_num == 4:
+                alg_name = "Closeness + Remove"
+            elif alg_num == 5:
+                alg_name = "Betweeness + Remove"
+            elif alg_num == 6:
+                alg_name = "Degree + Remove"
+
+            print(alg_name, count)
+
+
     # for num_trusted, small_dict in result_dict.items():
     #     print ("Number of trusted", num_trusted)
     #     for alg_num, rounds in small_dict.items():
