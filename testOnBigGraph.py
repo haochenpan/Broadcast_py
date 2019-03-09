@@ -79,7 +79,7 @@ def centrality_top_k(centrality_dict, num_of_trusted, t_node_set):
         good_nodes_list.append(k)
         if count == num_of_trusted:
             break
-    return set(good_nodes_list)
+    return good_nodes_list
 
 
 # 1 Closeness           4: Rmove with Closeness
@@ -115,7 +115,7 @@ def remove_src(centrality_dict, t_node_set):
 
 
 def get_trusted(G, centrality_dict: dict, num_trusted: int, overlap: int):
-    return_trusted_nodes = set()
+    return_trusted_nodes = list()
 
     while num_trusted > 0:
         copy_dict = order_dict(dict(centrality_dict))
@@ -125,7 +125,7 @@ def get_trusted(G, centrality_dict: dict, num_trusted: int, overlap: int):
         for id in copy_dict.keys():
             # Check if this id can be picked as trusted based on threshold
             if checkTrusted(G, id, return_trusted_nodes, overlap):
-                return_trusted_nodes.add(id)
+                return_trusted_nodes.append(id)
                 num_trusted -= 1
                 if num_trusted == 0:
                     return return_trusted_nodes
@@ -140,6 +140,7 @@ def get_trusted(G, centrality_dict: dict, num_trusted: int, overlap: int):
 
 # Check if the current node has overlap more than the threshold
 def checkTrusted(G, id, return_trusted_nodes, overlap):
+    return_trusted_nodes = set(return_trusted_nodes)
     for trusted_id in return_trusted_nodes:
         common_neis = len(list(nx.common_neighbors(G, id, trusted_id)))
         if common_neis > overlap:
@@ -155,6 +156,11 @@ def order_dict(centrality_dict):
 def loadGraph(pickle_name) :
     G = pickle.load(open(pickle_name, "rb"))
     return G
+
+#Key:
+    # (Graph_ID_
+# Key: alg_num
+# Value: list of good nodes picked
 
 
 def similation():
@@ -198,8 +204,48 @@ def similation():
     return result_dict
 
 
+def simulation_good_nodes_picked():
+    t_node_set = {0, 300, 600, 900, 1200}
+    num_trusted_list = list(range(0, 300, 10))
+
+    # {key: num of trusted; value: {key: algo enum; value: num of rounds}}
+    result_dict = dict()
+
+    # Put all those tested graph into the list
+    tested_graphs_name = []
+
+    for i in range(12):
+        tested_graphs_name.append("Big_Graph_" + str(i))
+
+    # Key: graph_id
+    # value: small dict:
+    # key: alg_name
+    # Top 70 trusted nodes
+    good_nodes_dict = dict()
+    for i in range (12):
+        good_nodes_dict[i] = dict()
+        for j in range(1, 7):
+            good_nodes_dict[i][j] = list()
+
+    num_trusted = 150
+    for graph_index in range(12):
+        G = loadGraph(tested_graphs_name[graph_index])
+        alg_num = 1
+        # 7 algorithms
+        print(graph_index)
+        while alg_num < 7:
+            print("Alg_num", alg_num)
+            current_trusted = pick_trusted_centrality(G, num_trusted, t_node_set, alg_num, 3)
+            current_trusted.extend(t_node_set.copy())
+            good_nodes_dict[alg_num]
+            alg_num += 1
+
+    pickle.dump(good_nodes_dict, open(f"Big_Graph_trusted.p", "wb"))
+    return result_dict
+
+
 def main():
-    result_dict = similation()
+    simulation_good_nodes_picked()
     # for num_trusted, small_dict in result_dict.items():
     #     print ("Number of trusted", num_trusted)
     #     for alg_num, rounds in small_dict.items():
