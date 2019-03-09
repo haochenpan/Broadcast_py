@@ -46,7 +46,7 @@ def line_graph(result_dict, graph_num):
     plt.legend(loc='best')
     plt.xlabel("Number of trusted")
     plt.ylabel("Number of rounds")
-    plt.title("Graph_id:6")
+    plt.title("Graph_id:11")
     plt.xticks(list(range(0,300,10)))
     plt.show()
     # plt.savefig(f"Medium, graph_id:{graph_num}")
@@ -94,7 +94,7 @@ def line_graph_head(result_dict, graph_num, top_k_trusted):
     plt.legend(loc='best')
     plt.xlabel("Number of trusted")
     plt.ylabel("Number of rounds")
-    plt.title(f"Graph_id:6")
+    plt.title(f"Graph_id:11")
     plt.xticks(list(range(0, top_k_trusted + 1, 10)))
     plt.show()
     # plt.savefig(f"Medium, graph_id:{graph_num}")
@@ -108,7 +108,7 @@ def plotOne(fileName):
     line_graph_head(result_dict, 0, 50)
 
 def main():
-    fileName = "/Users/yingjianwu/Desktop/broadcast/Broadcast_py/Big_Graph_6.p"
+    fileName = "/Users/yingjianwu/Desktop/broadcast/Broadcast_py/Big_Graph_11.p"
     plotOne(fileName)
 
     # result_dict = dict()
