@@ -119,7 +119,7 @@ Have the same Attributes as Graph 0
 #### overall
 ![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph5/Big_Graph_ID5_Overall.png)
 #### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph5/Big_Graph_ID5_TOP50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph5/Graph_ID5_TOP50.png)
 
 ## Graph6 (Random_Graph_2_V2):
 #### Total Graph Information: 
@@ -132,7 +132,7 @@ Have the same Attributes as Graph 1
 #### overall
 ![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph6/Big_Graph_ID6_Overall.png)
 #### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph6/Big_Graph_ID6_TOP50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph6/GRAPH_ID6_TOP50.png)
 
 ## Graph7 (Random_Graph_3_V2):
 #### Total Graph Information: 
@@ -144,7 +144,7 @@ Have the same Attributes as Graph 2
 #### overall
 ![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph7/Big_Graph_ID7_Overall.png)
 #### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph7/Big_Graph_ID7_TOP50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph7/Graph_id_7_Top50.png)
 
 ## Graph8 Graph3 (All sparse_V2)::
 #### Total Graph Information: 
