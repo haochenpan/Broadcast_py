@@ -1,5 +1,4 @@
-# 1500Nodes Big Graph:
-#### Top 10 trusted nodes for Small graph:
+# Top 10 trusted nodes for Small graph:
 ## Sparse Graph(id_4):
 ![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Focus_Graph/Sparse%2C%20graph_id:4_head_rounds_10.png)
 ## Medium Graph(id_18):
@@ -7,6 +6,7 @@
 ## Dense Graph(id):
 ![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Focus_Graph/Dense%2C%20graph_id:9_head_rounds_10.png)
 
+# 1500Nodes Big Graph:
 ## Graph0 (Random_Graph_1_V1):
 #### Total Graph Information:
 Nodes number = 1500
