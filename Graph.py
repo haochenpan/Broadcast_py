@@ -137,10 +137,10 @@ def line_graph(result_dict, graph_num):
 # Individual graph
 # x_axis: # trused nodes
 # y_axis: $ rounds
-def line_graph_head(result_dict, graph_num, top_k_trusted):
+def line_graph_head(result_dict, graph_num, top_k_trusted = 10):
     x_axis = []
     for num_trusted in result_dict.keys():
-        if num_trusted <= top_k_trusted:
+        if num_trusted < top_k_trusted:
             x_axis.append(num_trusted)
 
     # index represents the id of individual algorithm
@@ -176,9 +176,6 @@ def line_graph_head(result_dict, graph_num, top_k_trusted):
         elif alg_label == 4:
             plt.plot(x_axis, rounds_list, 'c', label='UNIFORM_TOTAL')
 
-        elif alg_label == 5:
-            plt.plot(x_axis, rounds_list, 'm', label='UNIFORM_SUB')
-
         elif alg_label == 6:
             plt.plot(x_axis, rounds_list, 'k', label='WEIGHTED_EDGEs')
 
@@ -193,11 +190,11 @@ def line_graph_head(result_dict, graph_num, top_k_trusted):
 
 
     plt.legend(loc='best')
-    plt.xticks(np.arange(0, 10, 1.0))
+    plt.xticks(np.arange(0, top_k_trusted, 1.0))
     plt.xlabel("Number of trusted")
     plt.ylabel("Number of rounds")
-    plt.title(f"Medium, graph_id:{graph_num}_head_rounds")
-    plt.savefig(f"Medium, graph_id:{graph_num}_head_rounds")
+    plt.title(f"Sparse, graph_id:{graph_num}_head_rounds")
+    plt.savefig(f"Sparse, graph_id:{graph_num}_head_rounds_{top_k_trusted}")
     plt.show()
     plt.clf()
 
@@ -264,8 +261,7 @@ if __name__ == '__main__':
         for a, b in v.items():
             small_dict_in_result_dict[a] = b
 
-    graph_id = 18
-    line_graph(result_dict, graph_id)
+    graph_id = 4
     line_graph_head(result_dict, graph_id, 10)
     # bar_graph(graph_id, result_dict)
 
