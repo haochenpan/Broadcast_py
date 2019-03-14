@@ -63,14 +63,26 @@ def line_graph_head(result_dict, graph_num, top_k_trusted):
 
     num_alg = len(small_dict.keys())
 
+    max = -1
+    min = 100
+    remove_min = 100;
+
     for i in range(num_alg):
         total_list.append([])
 
     for num_trusted, small_dict in result_dict.items():
         if num_trusted <= top_k_trusted:
             for alg_idx, rounds in small_dict.items():
+                if alg_idx == 5:
+                    print(num_trusted, rounds[graph_num])
+                if rounds[graph_num] < min:
+                    min = rounds[graph_num]
+                if rounds[graph_num] > max:
+                    max = rounds[graph_num]
                 total_list[alg_idx - 1].append(rounds[graph_num])
 
+    # print(min)
+    # print(max)
     for alg_label in range(len(total_list)):
         rounds_list = total_list[alg_label]
         if alg_label == 0:
@@ -96,7 +108,7 @@ def line_graph_head(result_dict, graph_num, top_k_trusted):
     plt.ylabel("Number of rounds")
     plt.title(f"Graph_id:7")
     plt.xticks(list(range(0, top_k_trusted + 1, 10)))
-    plt.yticks(list(range(10, 36,5)))
+    plt.yticks(list(range(10, 50,5)))
     plt.show()
     # plt.savefig(f"Medium, graph_id:{graph_num}")
     plt.clf()
@@ -109,7 +121,7 @@ def plotOne(fileName):
     line_graph_head(result_dict, 0, 50)
 
 def main():
-    fileName = "/Users/yingjianwu/Desktop/broadcast/Broadcast_py/Big_Graph_7.p"
+    fileName = "/Users/yingjianwu/Desktop/broadcast/Broadcast_py/Big_Graph_1.p"
     plotOne(fileName)
 
     # result_dict = dict()

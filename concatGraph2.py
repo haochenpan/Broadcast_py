@@ -1,13 +1,9 @@
 import pickle
-import networkx as nx
-from collections import defaultdict, OrderedDict, deque
-from operator import itemgetter
 import os
-from random import shuffle
 from random import sample
-from itertools import combinations
 
-
+# Version 2 of combining graphs
+# Build upon the graph from Version 1
 MAX_NUMBER_OF_FAULT_NODES = 3
 NUMBER_OF_NODES_GO_TO_NEXT_SRC = 2 * MAX_NUMBER_OF_FAULT_NODES + 1
 rootdir = os.path.join(os.getcwd(), 'subgraphs/')

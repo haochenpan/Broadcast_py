@@ -1,9 +1,7 @@
-from enum import Enum
 import pickle
 import networkx as nx
 import math
 from broadcasting import broadcast
-import matplotlib.pyplot as plt
 from collections import defaultdict, OrderedDict
 from operator import itemgetter
 import os

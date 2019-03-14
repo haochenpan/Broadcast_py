@@ -2,12 +2,7 @@ import pickle
 import networkx as nx
 from collections import defaultdict, OrderedDict, deque
 from operator import itemgetter
-import os
-from random import shuffle
-from random import sample
-from itertools import combinations
-import numpy as np
-
+# Test on the Big Graph
 
 MAX_NUMBER_OF_FAULT_NODES = 3
 
@@ -279,14 +274,6 @@ def write_to_txt(file_Name):
         for item in edge:
             file.write("%s\n" % str(item))
     file.close()
-
-
-# def checkGoodNodeInfo():
-#     result_dict = pickle.load(open("Big_Graph_trusted.p", "rb"))
-#     for graph_id, small_dict in result_dict.items():
-#         # print("Graph_ID", graph_id)
-#         for alg_num, trusted in small_dict.items():
-#             # print (alg_num, trusted)
 
 
 def checklinks():

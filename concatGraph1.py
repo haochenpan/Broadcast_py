@@ -1,12 +1,10 @@
 import pickle
 import networkx as nx
-from collections import defaultdict, OrderedDict, deque
-from operator import itemgetter
 import os
-from random import shuffle
 from random import sample
-from itertools import combinations
 
+# Version 1 of concating graph
+# Previous graph have (2 * f + 1 ) * (f + 1) edges to the next graph
 
 MAX_NUMBER_OF_FAULT_NODES = 3
 NUMBER_OF_NODES_GO_TO_NEXT_SRC = 2 * MAX_NUMBER_OF_FAULT_NODES + 1
