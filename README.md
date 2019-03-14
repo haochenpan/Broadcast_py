@@ -24,7 +24,7 @@ Total Edges = 21696
 4722	0.2
 
 #### overall
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph0/Big_Graph_ID0_Overall.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Stats_Plot/Big_Graph0/Big_Graph_ID0_Overall.png)
 Closeness 12
 
 Betweeness 36
@@ -38,7 +38,7 @@ Betweeness + Remove 13
 Degree + Remove 7
 
 #### Top 50 trusted
-![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Big_Graph0/Big_Graph_ID0_TOP50.png)
+![](https://github.com/haochenpan/Broadcast_py/blob/global_master/Big_Graph/Stats_Plot/Big_Graph0/Big_Graph_ID0_TOP50.png)
 Closeness 4
 
 Betweeness 12
